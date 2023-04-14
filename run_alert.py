@@ -12,7 +12,7 @@ ALERT_ON = "#OUTPUT,6,1,1"
 ALERT_OFF = "#OUTPUT,6,1,0"
 DATETIME = get_datetime()
 FILE = DATETIME + "_run-alert.log"
-PATH = ".\\log\\run_alert\\" + FILE
+PATH = ".\\logs\\run_alert\\" + FILE
 
 
 def run_alert(emergency_hosts):

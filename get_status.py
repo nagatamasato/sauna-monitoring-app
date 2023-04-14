@@ -10,7 +10,7 @@ GET_STATUS = "?SYSVAR,4,1"
 
 DATETIME = get_datetime()
 FILE_NAME = DATETIME + "_get-status.log"
-PATH = ".\\log\\get_status\\" + FILE_NAME
+PATH = ".\\logs\\get_status\\" + FILE_NAME
 
 
 def get_status(host):
