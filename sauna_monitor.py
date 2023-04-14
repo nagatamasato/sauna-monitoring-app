@@ -1,5 +1,5 @@
-from get_status import get_status
-from run_alert import run_alert
+from sauna import Sauna
+from alert import Alert
 import time
 
 hosts = {
@@ -20,7 +20,7 @@ emergency_hosts = {}
 
 for i in hosts:
     print("get_status", i, hosts[i])
-    emergency = get_status(hosts[i])
+    emergency = Sauna.get_status(hosts[i])
     if emergency:
         emergency_hosts[i] = hosts[i]
     time.sleep(1)
@@ -28,4 +28,4 @@ for i in hosts:
 print("emergency_hosts", emergency_hosts)
 
 if (emergency_hosts):
-    run_alert(emergency_hosts)
+    Alert.alert(emergency_hosts)
