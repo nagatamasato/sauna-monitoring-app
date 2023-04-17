@@ -1,6 +1,5 @@
 from sauna import Sauna
-from alert import Alert
-import time
+
 
 hosts = {
     "101": "192.168.0.200",
@@ -16,16 +15,4 @@ hosts = {
     # "507": "192.168.0.230"
 }
 
-emergency_hosts = {}
-
-for i in hosts:
-    print("get_status", i, hosts[i])
-    emergency = Sauna.get_status(hosts[i])
-    if emergency:
-        emergency_hosts[i] = hosts[i]
-    time.sleep(1)
-
-print("emergency_hosts", emergency_hosts)
-
-if (emergency_hosts):
-    Alert.alert(emergency_hosts)
+Sauna.get_status(hosts)
