@@ -1,6 +1,7 @@
 from telnetlib import Telnet
 from create_path import CreatePath
 import json
+import time
 
 class Sauna:
 
@@ -62,5 +63,6 @@ class Sauna:
 
                 # terminate Telnet session
                 tn.write(b"exit\n")
+                time.sleep(1)
 
         print("get_status END")
