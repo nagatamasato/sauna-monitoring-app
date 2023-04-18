@@ -1,5 +1,6 @@
 from telnetlib import Telnet
 import time
+
 from create_path import CreatePath
 
 

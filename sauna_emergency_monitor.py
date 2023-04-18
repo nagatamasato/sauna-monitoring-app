@@ -1,18 +1,61 @@
+from datetime import datetime
+import time
 import json
+
 from alert import Alert
 
 
-with open("statuses.json", "r") as f:
-    statuses = json.load(f)
+# 定期実行間隔
+INTERVAL = 60
+# 1回のINTERVAL中の実行回数
+FREQUENCY = 6
+# 余裕を持たせるための時間(これがないと実行時間がINTERVAL(60秒)を超える)
+MARGIN = 0.5
+# １回あたりの最大時間
+MAXTIME = (INTERVAL / FREQUENCY) - MARGIN
 
-print("statuses", statuses)
+if (MAXTIME < 0):
+    MARGIN = 0
 
-emergencies = {}
-for i in statuses:
-    if statuses[i]['status'] == "1":
-        emergencies[i] = statuses[i]
+start_time = datetime.now()
+print("start_time", start_time)
 
-print("emergencies", emergencies) 
+for i in range(FREQUENCY):
 
-if (emergencies):
-    Alert.alert()
+    print(i + 1, "/", FREQUENCY)
+    # 開始時刻
+    start = datetime.now()
+
+    with open("hosts.json", "r") as f:
+        hosts = json.load(f)
+
+    print("hosts", hosts)
+
+    emergencies = {}
+    for i in hosts:
+        if hosts[i]['status'] == "1":
+            emergencies[i] = hosts[i]
+
+    print("emergencies", emergencies) 
+
+    if (emergencies):
+        Alert.alert()
+
+    end = datetime.now()
+    # 実行時間
+    runtime = (end - start).total_seconds()
+
+    print("start", start)
+    print("end", end)
+    print("runtime", runtime)
+
+    wait = MAXTIME - runtime
+    print("wait", wait)
+    if (wait > 0):
+        time.sleep(wait)
+
+    end_time = datetime.now()
+    total_time = (end_time - start_time).total_seconds()
+    print("end_time", end_time)
+    print("total_time", total_time)
+

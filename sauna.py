@@ -1,7 +1,9 @@
 from telnetlib import Telnet
-from create_path import CreatePath
 import json
 import time
+
+from create_path import CreatePath
+
 
 class Sauna:
 
@@ -28,10 +30,10 @@ class Sauna:
             for i in hosts:
                 f.write(i)
                 f.write(" ")
-                f.write(hosts[i])
+                f.write(hosts[i]['host'])
                 f.write(" ")
                 # start Telnet session
-                tn = Telnet(hosts[i], Sauna.PORT, timeout=5)
+                tn = Telnet(hosts[i]['host'], Sauna.PORT, timeout=5)
                 # tn = Telnet(host, PORT)
                 tn.read_until(b"login: ")
                 tn.write(Sauna.USER.encode("utf-8") + b"\r\n")
@@ -48,18 +50,18 @@ class Sauna:
                 # write result
                 f.write(result)
 
-                status = result.splitlines()[0].split(',')[3]
-                print("status", status)
+                current_status = result.splitlines()[0].split(',')[3]
+                print("status", current_status)
 
-                with open("statuses.json", "r") as jsonf:
-                    statuses = json.load(jsonf)
-                    print("statuses", statuses)
-                    print("old_status", statuses[i]['status'])
-                    print("new_status", status)
-                    statuses[i]['status'] = status
+                # with open("hosts.json", "r") as jsonf:
+                #     hosts = json.load(jsonf)
+                #     print("statuses", hosts)
+                #     print("old_status", hosts[i]['status'])
+                #     print("new_status", hosts)
+                #     hosts[i]['status'] = current_status
 
-                with open('statuses.json', 'w') as jsonf:
-                    json.dump(statuses, jsonf)
+                with open('hosts.json', 'w') as jsonf:
+                    json.dump(hosts, jsonf)
 
                 # terminate Telnet session
                 tn.write(b"exit\n")
