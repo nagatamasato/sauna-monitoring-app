@@ -1,10 +1,12 @@
 from telnetlib import Telnet
+import datetime
 import json
 import time
-
 import sys
 sys.path.append('..\\common')
+sys.path.append('..\\view')
 from path import CreatePath
+from view import View
 
 
 class Monitor:
@@ -55,15 +57,21 @@ class Monitor:
                 current_status = result.splitlines()[0].split(',')[3]
                 print("status", current_status)
 
+                now = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+                print("現在時刻は: ", now)
+
                 with open("..\\hosts.json", "r") as jsonf:
                     hosts = json.load(jsonf)
                     print("statuses", hosts)
                     print("old_status", hosts[i]['status'])
                     print("new_status", current_status)
                     hosts[i]['status'] = current_status
+                    hosts[i]['updated_time'] = now
 
                 with open("..\\hosts.json", "w") as jsonf:
                     json.dump(hosts, jsonf)
+
+                View.create_view(hosts)
 
                 # terminate Telnet session
                 tn.write(b"exit\n")
