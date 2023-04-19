@@ -2,13 +2,13 @@ from datetime import datetime
 import time
 import json
 
-from sauna import Sauna
+from monitor import Monitor
 
 
 # 定期実行間隔
 INTERVAL = 60
 # 1回のINTERVAL中の実行回数
-FREQUENCY = 1
+FREQUENCY = 6
 # 余裕を持たせるための時間(これがないと実行時間がINTERVAL(60秒)を超える)
 MARGIN = 0.5
 # １回あたりの最大時間
@@ -18,7 +18,7 @@ MAXTIME = (INTERVAL / FREQUENCY) - MARGIN
 start_time = datetime.now()
 print("start_time", start_time)
 
-with open("hosts.json", "r") as f:
+with open("..\\hosts.json", "r") as f:
     hosts = json.load(f)
 
 for i in range(FREQUENCY):
@@ -26,7 +26,7 @@ for i in range(FREQUENCY):
     # 開始時刻
     start = datetime.now()
     # サウナルームのステータスを取得
-    Sauna.get_status(hosts)
+    Monitor.get_status(hosts)
     # 終了時刻
     end = datetime.now()
     # 実行時間

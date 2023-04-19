@@ -1,4 +1,4 @@
-{
+const hosts = {
     "101": {
         "host": "192.168.0.200",
         "status": "0"
@@ -43,4 +43,14 @@
         "host": "192.168.0.230",
         "status": "0"
     }
+};
+
+let html = '';
+for (const key in hosts) {
+    const host = hosts[key];
+    const row = `<tr><td>${key}</td><td>${host.status}</td><td>${host.host}</td></tr>`;
+    html += row;
 }
+
+const table = document.getElementById('hosts');
+table.innerHTML = html;

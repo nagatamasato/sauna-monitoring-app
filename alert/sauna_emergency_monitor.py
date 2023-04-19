@@ -8,7 +8,7 @@ from alert import Alert
 # 定期実行間隔
 INTERVAL = 60
 # 1回のINTERVAL中の実行回数
-FREQUENCY = 6
+FREQUENCY = 30
 # 余裕を持たせるための時間(これがないと実行時間がINTERVAL(60秒)を超える)
 MARGIN = 0.5
 # １回あたりの最大時間
@@ -21,12 +21,11 @@ start_time = datetime.now()
 print("start_time", start_time)
 
 for i in range(FREQUENCY):
-
     print(i + 1, "/", FREQUENCY)
     # 開始時刻
     start = datetime.now()
 
-    with open("hosts.json", "r") as f:
+    with open("..\\hosts.json", "r") as f:
         hosts = json.load(f)
 
     print("hosts", hosts)
@@ -58,4 +57,3 @@ for i in range(FREQUENCY):
     total_time = (end_time - start_time).total_seconds()
     print("end_time", end_time)
     print("total_time", total_time)
-

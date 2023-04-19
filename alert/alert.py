@@ -1,7 +1,9 @@
 from telnetlib import Telnet
 import time
 
-from create_path import CreatePath
+import sys
+sys.path.append('..\\common')
+from path import CreatePath
 
 
 class Alert:

@@ -10,7 +10,7 @@ class CreatePath:
         now_time = str(now_time).replace(":", "")
         now_time = str(now_time).replace(".", "")
         file = now_time + "_" + arg + ".log"
-        path = ".\\logs\\" + arg + "\\" + file
+        path = ".\\logs\\" + file
 
         return path
     
