@@ -1,22 +1,27 @@
 from datetime import datetime
+import os
 
 
-class CreatePath:
+class LogManager:
+
+
+    def create_folder(app):
         
-    def create_path(arg):
+        folder_path = "..\\" + app + "\\logs"
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+
+    
+    def create_path(app):
+
+        LogManager.create_folder(app)
 
         now_time = datetime.now()
-        print("path date", now_time)
         date_str = str(now_time).split()[0]
         time_str = str(now_time).split()[1].split('.')[0]
         path_number = time_str.split(':')[0] + time_str.split(':')[1][0]
         path_str = date_str + "_" + path_number
-        print("date_str", date_str)
-        print("time_str", time_str)
-        print("path_number", path_number)
-        print("path", path_str)
-        file = path_str + "_" + arg + ".log"
+        file = path_str + "_" + app + ".log"
         path = ".\\logs\\" + file
 
         return path
-    

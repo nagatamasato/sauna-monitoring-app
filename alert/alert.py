@@ -3,7 +3,7 @@ import time
 
 import sys
 sys.path.append('..\\common')
-from path import CreatePath
+from log_manager import LogManager
 
 
 class Alert:
@@ -14,7 +14,7 @@ class Alert:
     PASSWORD = "Admin12345"
     ALERT_ON = "#OUTPUT,6,1,1"
     ALERT_OFF = "#OUTPUT,6,1,0"
-    PATH = CreatePath.create_path("alert")
+    PATH = LogManager.create_path("alert")
 
     def alert():
 

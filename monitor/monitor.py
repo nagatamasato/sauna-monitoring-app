@@ -5,7 +5,7 @@ import time
 import sys
 sys.path.append('..\\common')
 sys.path.append('..\\view')
-from path import CreatePath
+from log_manager import LogManager
 from view import View
 
 
@@ -16,7 +16,7 @@ class Monitor:
     USER = "x1s"
     PASSWORD = "Admin12345"
     GET_STATUS = "?SYSVAR,4,1"
-    PATH = CreatePath.create_path("monitor")
+    PATH = LogManager.create_path("monitor")
 
 
     def get_status(hosts):
