@@ -31,6 +31,7 @@ class Monitor:
             f.write("host ")
             f.write("result\n")
 
+            # count = 0
             for i in hosts:
                 f.write(i)
                 f.write(" ")
@@ -66,6 +67,8 @@ class Monitor:
                     print("old_status", hosts[i]['status'])
                     print("new_status", current_status)
                     hosts[i]['status'] = current_status
+                    # if (count % 4 == 0):
+                    #     hosts[i]['status'] = '1'
                     hosts[i]['updated_time'] = now
 
                 with open("..\\hosts.json", "w") as jsonf:
@@ -76,5 +79,6 @@ class Monitor:
                 # terminate Telnet session
                 tn.write(b"exit\n")
                 time.sleep(1)
+                # count += 1
 
         print("get_status END")

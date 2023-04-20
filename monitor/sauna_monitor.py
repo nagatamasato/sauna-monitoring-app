@@ -9,7 +9,7 @@ from monitor import Monitor
 INTERVAL = 60
 # 1回のINTERVAL中の実行回数
 FREQUENCY = 6
-# 余裕を持たせるための時間(これがないと実行時間がINTERVAL(60秒)を超える)
+# 実行時間がINTERVAL(60秒)を超えないように設定
 MARGIN = 0.5
 # １回あたりの最大時間
 MAXTIME = (INTERVAL / FREQUENCY) - MARGIN

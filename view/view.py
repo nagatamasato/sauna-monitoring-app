@@ -71,7 +71,10 @@ class View:
         html += "<body>\n"
         html += "<h1>Sauna rooms monitoring</h1>"
         html += "<table>\n"
+        html += "<thead>\n"
         html += "<tr><th>Room</th><th>Status</th><th>Updated time</th><th>Host</th></tr>\n"
+        html += "</thead>\n"
+        html += '<tbody id="hosts">\n'
 
         # JSONデータを解析し、各行のデータをテーブルに追加する
         for room, info in hosts.items():
@@ -79,7 +82,8 @@ class View:
             status = info['status']
             updated_time = info['updated_time']
             html += f"<tr><td>{room}</td><td>{status}</td><td>{updated_time}</td><td>{host}</td></tr>\n"
-
+        
+        html += "</tbody>\n"
         html += "</table>"
         html += '<script src="view.js"></script>\n'
         html += "</body>\n"
