@@ -1,5 +1,5 @@
 from telnetlib import Telnet
-import datetime
+from datetime import datetime
 import json
 import time
 import sys
@@ -23,20 +23,11 @@ class Monitor:
 
         print("get_status START")
 
-        # open new file
-        with open(Monitor.PATH, "w") as f:
-
-            # header
-            f.write("room ")
-            f.write("host ")
-            f.write("result\n")
-
+        with open(Monitor.PATH, "a") as f:
+            header = "Room,Status,Updated_time,Host\n"
+            f.write(header)
             # count = 0
             for i in hosts:
-                f.write(i)
-                f.write(" ")
-                f.write(hosts[i]['host'])
-                f.write(" ")
                 # start Telnet session
                 tn = Telnet(hosts[i]['host'], Monitor.PORT, timeout=5)
                 # tn = Telnet(host, PORT)
@@ -52,13 +43,11 @@ class Monitor:
                 result = result.replace("QNET> ", "")
                 result = result.replace("\n", "")
                 print("result", result)
-                # write result
-                f.write(result)
 
                 current_status = result.splitlines()[0].split(',')[3]
-                print("status", current_status)
+                print("current_status", current_status)
 
-                now = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+                now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
                 print("現在時刻は: ", now)
 
                 with open("..\\hosts.json", "r") as jsonf:
@@ -73,6 +62,9 @@ class Monitor:
 
                 with open("..\\hosts.json", "w") as jsonf:
                     json.dump(hosts, jsonf)
+
+                log = i + "," + current_status + "," + now + "," + hosts[i]['host'] + "\n"
+                f.write(log)
 
                 View.create_view(hosts)
 
