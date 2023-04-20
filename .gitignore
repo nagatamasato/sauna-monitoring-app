@@ -2,6 +2,8 @@ __pycache__/
 
 monitor/logs/*
 alert/logs/*
+view/index.html
+hosts.json
 
 _logs/
 allHosts.json
