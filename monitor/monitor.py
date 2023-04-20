@@ -1,5 +1,6 @@
 from telnetlib import Telnet
 from datetime import datetime
+import os
 import json
 import time
 import sys
@@ -23,11 +24,19 @@ class Monitor:
 
         print("get_status START")
 
+        write_header = False
+
+        if not os.path.exists(Monitor.PATH):
+            write_header = True
+
         with open(Monitor.PATH, "a") as f:
-            header = "Room,Status,Updated_time,Host\n"
-            f.write(header)
+            if write_header:
+                header = "Room,Status,Updated_time,Host\n"
+                f.write(header)
+                write_header = False
             # count = 0
             for i in hosts:
+                header = ""
                 # start Telnet session
                 tn = Telnet(hosts[i]['host'], Monitor.PORT, timeout=5)
                 # tn = Telnet(host, PORT)
@@ -63,6 +72,7 @@ class Monitor:
                 with open("..\\hosts.json", "w") as jsonf:
                     json.dump(hosts, jsonf)
 
+                log = ""
                 log = i + "," + current_status + "," + now + "," + hosts[i]['host'] + "\n"
                 f.write(log)
 
