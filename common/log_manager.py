@@ -26,7 +26,7 @@ class LogManager:
 
         if (app == 'monitor'):
             now_time = datetime.now()
-            date_str = str(now_time).split()[0]
+            date_str = str(now_time).split()[0].replace("-", "")
             time_str = str(now_time).split()[1].split('.')[0]
             path_number = time_str.split(':')[0] + time_str.split(':')[1][0]
             path_date = date_str + "_" + path_number + "_"
