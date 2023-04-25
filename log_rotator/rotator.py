@@ -1,14 +1,12 @@
 import os
 import re
 import shutil
+from datetime import datetime
 
 class Rotator:
 
-
-    def rotate():
-
-        # monitor
-
+    # monitor
+    def rotate_monitor_log():
         # ディレクトリと条件を指定
         directory = "..\\monitor\\logs"
         pattern = r"^2[01][0-9]{2}[01][0-9][0-3][0-9]"
@@ -38,16 +36,23 @@ class Rotator:
         print("oldest_dir", oldest_dir)
         print(type(oldest_dir))
 
-        # 再度log_dirsの数をカウントして繰り返す
 
+    # alert
+    def rotate_alert_log():
+        # しきい値を10MBに設定する
+        threshold = 10 * 1024 * 1024
+        folder_path = "..\\alert"
+        file_name = "alert-log.csv"
+        # ファイルの相対パスを取得する
+        file_path = os.path.join(folder_path, file_name)
+        # ファイルサイズを取得する
+        file_size = os.path.getsize(file_path)
+        print("file_size", file_size)
 
-
-        # alert
-
-        # ..\\alert\\alert-log.csvのファイルサイズをチェック
-        
-        
-        # サイズがしきい値を超えていたらログ保存用ファイルの存在チェック → 削除
-
-
-        # alert-log.csvをログ保存用ファイル名に変更
+        # ファイルサイズがしきい値を超えた場合、ファイル名を変更する
+        if file_size > threshold:
+            suffix = datetime.now()
+            new_file_name = file_name + suffix
+            new_file_path = os.path.join(folder_path, new_file_name)
+            os.rename(file_path, new_file_path)
+            print(f"{file_name} has been renamed to {new_file_name}")
