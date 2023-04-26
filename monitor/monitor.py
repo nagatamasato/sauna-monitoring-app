@@ -52,7 +52,7 @@ class Monitor:
                     result = result.decode("utf-8")
                     result = result.replace("QNET> ", "")
                     result = result.replace("\n", "")
-                    result.splitlines()[0].split(',')[3]
+                    result = result.splitlines()[0].split(',')[3]
 
                 except:
                     result = "connection error"
