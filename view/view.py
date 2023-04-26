@@ -72,7 +72,7 @@ class View:
         html += "<h1>Sauna rooms monitoring</h1>"
         html += "<table>\n"
         html += "<thead>\n"
-        html += "<tr><th>Room</th><th>Status</th><th>Updated time</th><th>Host</th></tr>\n"
+        html += "<tr><th>Room</th><th>Status</th><th>Emergency time</th><th>Updated time</th><th>Host</th></tr>\n"
         html += "</thead>\n"
         html += '<tbody id="hosts">\n'
 
@@ -80,8 +80,9 @@ class View:
         for room, info in hosts.items():
             host = info['host']
             status = info['status']
+            emergency_time = info['emergency_time']
             updated_time = info['updated_time']
-            html += f"<tr><td>{room}</td><td>{status}</td><td>{updated_time}</td><td>{host}</td></tr>\n"
+            html += f"<tr><td>{room}</td><td>{status}</td><td>{emergency_time}</td><td>{updated_time}</td><td>{host}</td></tr>\n"
         
         html += "</tbody>\n"
         html += "</table>"

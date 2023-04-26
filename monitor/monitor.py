@@ -31,7 +31,7 @@ class Monitor:
 
         with open(Monitor.__PATH, "a") as f:
             if write_header:
-                header = "Room,Status,Updated_time,Host\n"
+                header = "Room,Status,Emergency_time,Updated_time,Host\n"
                 f.write(header)
                 write_header = False
             # count = 0
@@ -66,19 +66,24 @@ class Monitor:
 
                 with open("..\\hosts.json", "r") as jsonf:
                     hosts = json.load(jsonf)
+
                     print("statuses", hosts)
                     print("old_status", hosts[i]['status'])
                     print("new_status", current_status)
                     hosts[i]['status'] = current_status
                     # if (count % 4 == 0):
                     #     hosts[i]['status'] = '1'
+                    if hosts[i]['status'] == '1' and hosts[i]['emergency_time'] == "":
+                        hosts[i]['emergency_time'] = now
+                    if hosts[i]['status'] == '0':
+                        hosts[i]['emergency_time'] = ""
                     hosts[i]['updated_time'] = now
 
                 with open("..\\hosts.json", "w") as jsonf:
                     json.dump(hosts, jsonf)
 
-                log = ""
-                log = i + "," + current_status + "," + now + "," + hosts[i]['host'] + "\n"
+                emergency_time = hosts[i]['emergency_time']
+                log = i + "," + current_status + "," + emergency_time + "," + now + "," + hosts[i]['host'] + "\n"
                 f.write(log)
 
                 View.create_view(hosts)
