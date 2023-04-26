@@ -7,7 +7,7 @@ import sys
 sys.path.append('..\\common')
 sys.path.append('..\\view')
 from log_manager import LogManager
-from view import View
+from generate_html import GenerateHtml
 
 
 class Monitor:
@@ -62,22 +62,22 @@ class Monitor:
                 print("current_status", current_status)
 
                 now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-                print("現在時刻は: ", now)
-
+                print("current time: ", now)
+ 
                 with open("..\\hosts.json", "r") as jsonf:
                     hosts = json.load(jsonf)
 
-                    print("statuses", hosts)
-                    print("old_status", hosts[i]['status'])
-                    print("new_status", current_status)
-                    hosts[i]['status'] = current_status
-                    # if (count % 4 == 0):
-                    #     hosts[i]['status'] = '1'
-                    if hosts[i]['status'] == '1' and hosts[i]['emergency_time'] == "":
-                        hosts[i]['emergency_time'] = now
-                    if hosts[i]['status'] == '0':
-                        hosts[i]['emergency_time'] = ""
-                    hosts[i]['updated_time'] = now
+                print("statuses", hosts)
+                print("old_status", hosts[i]['status'])
+                print("new_status", current_status)
+                hosts[i]['status'] = current_status
+                # if (count % 4 == 0):
+                #     hosts[i]['status'] = '1'
+                if hosts[i]['status'] == '1' and hosts[i]['emergency_time'] == "":
+                    hosts[i]['emergency_time'] = now
+                if hosts[i]['status'] == '0':
+                    hosts[i]['emergency_time'] = ""
+                hosts[i]['updated_time'] = now
 
                 with open("..\\hosts.json", "w") as jsonf:
                     json.dump(hosts, jsonf)
@@ -86,7 +86,7 @@ class Monitor:
                 log = i + "," + current_status + "," + emergency_time + "," + now + "," + hosts[i]['host'] + "\n"
                 f.write(log)
 
-                View.create_view(hosts)
+                GenerateHtml.generate_html(hosts)
 
                 # terminate Telnet session
                 if tn:
