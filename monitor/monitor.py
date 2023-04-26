@@ -36,24 +36,29 @@ class Monitor:
                 write_header = False
             # count = 0
             for i in hosts:
-                header = ""
                 # start Telnet session
-                tn = Telnet(hosts[i]['host'], Monitor.__PORT, timeout=5)
-                # tn = Telnet(host, PORT)
-                tn.read_until(b"login: ")
-                tn.write(Monitor.__USER.encode("utf-8") + b"\r\n")
-                tn.read_until(b"password: ")
-                tn.write(Monitor.__PASSWORD.encode("utf-8") + b"\r\n")
-                tn.read_until(b"QNET> ")
-                # run command
-                tn.write(Monitor.__GET_STATUS_COMMAND.encode("utf-8") + b"\r\n")
-                result = tn.read_until(b"QNET> ")
-                result = result.decode("utf-8")
-                result = result.replace("QNET> ", "")
-                result = result.replace("\n", "")
-                print("result", result)
+                tn = ""
+                try:
+                    tn = Telnet(hosts[i]['host'], Monitor.__PORT, timeout=5)
+                    # tn = Telnet(host, PORT)
+                    tn.read_until(b"login: ")
+                    tn.write(Monitor.__USER.encode("utf-8") + b"\r\n")
+                    tn.read_until(b"password: ")
+                    tn.write(Monitor.__PASSWORD.encode("utf-8") + b"\r\n")
+                    tn.read_until(b"QNET> ")
+                    # run command
+                    tn.write(Monitor.__GET_STATUS_COMMAND.encode("utf-8") + b"\r\n")
+                    result = tn.read_until(b"QNET> ")
+                    result = result.decode("utf-8")
+                    result = result.replace("QNET> ", "")
+                    result = result.replace("\n", "")
+                    result.splitlines()[0].split(',')[3]
 
-                current_status = result.splitlines()[0].split(',')[3]
+                except:
+                    result = "connection error"
+
+                print("result", result)
+                current_status = result
                 print("current_status", current_status)
 
                 now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
@@ -79,8 +84,9 @@ class Monitor:
                 View.create_view(hosts)
 
                 # terminate Telnet session
-                tn.write(b"exit\n")
-                time.sleep(1)
+                if tn:
+                    tn.write(b"exit\n")
+                    time.sleep(1)
                 # count += 1
 
         print("get_status END")
