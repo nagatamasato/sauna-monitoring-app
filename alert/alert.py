@@ -22,34 +22,44 @@ class Alert:
 
         print("alert START")
 
-        with open(Alert.__PATH, "a") as f:
-            now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-            start = now + ",alert START\n"
-            f.write(start)
-
-        # Telnetセッションを開始
-        tn = Telnet(Alert.__HOST, Alert.__PORT)
-        tn.read_until(b"login: ")
-        tn.write(Alert.__USER.encode("UTF-8") + b"\r\n")
-        tn.read_until(b"password: ")
-        tn.write(Alert.__PASSWORD.encode("UTF-8") + b"\r\n")
-        tn.read_until(b"QNET> ")
         
-        for i in range(25):
-            tn.write(Alert.__ALERT_ON_COMMAND.encode("UTF-8") + b"\r\n")  # ALERT_ON
-            # result = tn.read_until(b"QNET> ")
-            # f.write(result.decode("utf-8"))
-            time.sleep(2)  # 2秒待つ
-            tn.write(Alert.__ALERT_OFF_COMMAND.encode("UTF-8") + b"\r\n")  # ALERT_OFF
-            # result = tn.read_until(b"QNET> ")
-            # f.write(result.decode("utf-8"))
 
-        # Telnetセッションを終了
-        tn.write(b"exit\r\n")
+        try:
+            # Telnetセッションを開始
+            tn = Telnet(Alert.__HOST, Alert.__PORT, timeout=5)
+            tn.read_until(b"login: ")
+            tn.write(Alert.__USER.encode("UTF-8") + b"\r\n")
+            tn.read_until(b"password: ")
+            tn.write(Alert.__PASSWORD.encode("UTF-8") + b"\r\n")
+            tn.read_until(b"QNET> ")
 
-        with open(Alert.__PATH, "a") as f:
-            now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-            end = now + ",alert END\n"
-            f.write(end)
-            
+            with open(Alert.__PATH, "a") as f:
+                now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+                start = now + ",alert START\n"
+                f.write(start)
+                
+            for i in range(25):
+                tn.write(Alert.__ALERT_ON_COMMAND.encode("UTF-8") + b"\r\n")  # ALERT_ON
+                # result = tn.read_until(b"QNET> ")
+                # f.write(result.decode("utf-8"))
+                time.sleep(2)  # 2秒待つ
+                tn.write(Alert.__ALERT_OFF_COMMAND.encode("UTF-8") + b"\r\n")  # ALERT_OFF
+                # result = tn.read_until(b"QNET> ")
+                # f.write(result.decode("utf-8"))
+
+            with open(Alert.__PATH, "a") as f:
+                now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+                end = now + ",alert END\n"
+                f.write(end)
+
+            # Telnetセッションを終了
+            tn.write(b"exit\r\n")
+        
+        except:
+            with open(Alert.__PATH, "a") as f:
+                now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+                connection_error = now + ",connection error\n"
+                f.write(connection_error)
+                print("connection error")
+        
         print("alert END")

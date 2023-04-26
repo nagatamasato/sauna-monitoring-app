@@ -7,7 +7,7 @@ import sys
 sys.path.append('..\\common')
 sys.path.append('..\\view')
 from log_manager import LogManager
-from view import View
+from generate_html import GenerateHtml
 
 
 class Monitor:
@@ -31,56 +31,67 @@ class Monitor:
 
         with open(Monitor.__PATH, "a") as f:
             if write_header:
-                header = "Room,Status,Updated_time,Host\n"
+                header = "Room,Status,Emergency_time,Updated_time,Host\n"
                 f.write(header)
                 write_header = False
             # count = 0
             for i in hosts:
-                header = ""
                 # start Telnet session
-                tn = Telnet(hosts[i]['host'], Monitor.__PORT, timeout=5)
-                # tn = Telnet(host, PORT)
-                tn.read_until(b"login: ")
-                tn.write(Monitor.__USER.encode("utf-8") + b"\r\n")
-                tn.read_until(b"password: ")
-                tn.write(Monitor.__PASSWORD.encode("utf-8") + b"\r\n")
-                tn.read_until(b"QNET> ")
-                # run command
-                tn.write(Monitor.__GET_STATUS_COMMAND.encode("utf-8") + b"\r\n")
-                result = tn.read_until(b"QNET> ")
-                result = result.decode("utf-8")
-                result = result.replace("QNET> ", "")
-                result = result.replace("\n", "")
-                print("result", result)
+                tn = ""
+                try:
+                    tn = Telnet(hosts[i]['host'], Monitor.__PORT, timeout=5)
+                    # tn = Telnet(host, PORT)
+                    tn.read_until(b"login: ")
+                    tn.write(Monitor.__USER.encode("utf-8") + b"\r\n")
+                    tn.read_until(b"password: ")
+                    tn.write(Monitor.__PASSWORD.encode("utf-8") + b"\r\n")
+                    tn.read_until(b"QNET> ")
+                    # run command
+                    tn.write(Monitor.__GET_STATUS_COMMAND.encode("utf-8") + b"\r\n")
+                    result = tn.read_until(b"QNET> ")
+                    result = result.decode("utf-8")
+                    result = result.replace("QNET> ", "")
+                    result = result.replace("\n", "")
+                    result = result.splitlines()[0].split(',')[3]
 
-                current_status = result.splitlines()[0].split(',')[3]
+                except:
+                    result = "connection error"
+
+                print("result", result)
+                current_status = result
                 print("current_status", current_status)
 
                 now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-                print("現在時刻は: ", now)
-
+                print("current time: ", now)
+ 
                 with open("..\\hosts.json", "r") as jsonf:
                     hosts = json.load(jsonf)
-                    print("statuses", hosts)
-                    print("old_status", hosts[i]['status'])
-                    print("new_status", current_status)
-                    hosts[i]['status'] = current_status
-                    # if (count % 4 == 0):
-                    #     hosts[i]['status'] = '1'
-                    hosts[i]['updated_time'] = now
+
+                print("statuses", hosts)
+                print("old_status", hosts[i]['status'])
+                print("new_status", current_status)
+                hosts[i]['status'] = current_status
+                # if (count % 4 == 0):
+                #     hosts[i]['status'] = '1'
+                if hosts[i]['status'] == '1' and hosts[i]['emergency_time'] == "":
+                    hosts[i]['emergency_time'] = now
+                if hosts[i]['status'] == '0':
+                    hosts[i]['emergency_time'] = ""
+                hosts[i]['updated_time'] = now
 
                 with open("..\\hosts.json", "w") as jsonf:
                     json.dump(hosts, jsonf)
 
-                log = ""
-                log = i + "," + current_status + "," + now + "," + hosts[i]['host'] + "\n"
+                emergency_time = hosts[i]['emergency_time']
+                log = i + "," + current_status + "," + emergency_time + "," + now + "," + hosts[i]['host'] + "\n"
                 f.write(log)
 
-                View.create_view(hosts)
+                GenerateHtml.generate_html(hosts)
 
                 # terminate Telnet session
-                tn.write(b"exit\n")
-                time.sleep(1)
+                if tn:
+                    tn.write(b"exit\n")
+                    time.sleep(1)
                 # count += 1
 
         print("get_status END")

@@ -1,10 +1,4 @@
-__pycache__/
-
 monitor/logs/*
 alert/logs/*
+log_rotator/logs/*
 view/index.html
-hosts.json
-
-_logs/
-allHosts.json
-sample_view/
