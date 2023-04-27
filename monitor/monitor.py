@@ -55,7 +55,7 @@ class Monitor:
                     result = result.splitlines()[0].split(',')[3]
 
                 except:
-                    result = "connection error"
+                    result = "Connection error"
 
                 print("result", result)
                 current_status = result
