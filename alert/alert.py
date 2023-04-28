@@ -3,19 +3,19 @@ from datetime import datetime
 import time
 import sys
 sys.path.append('..\\common')
-from log_manager import LogManager
+from path_generator import PathGenerator
 
 
 class Alert:
 
     __APP_NAME = "alert"
-    __HOST = "192.168.0.231"
+    __HOST = "192.168.10.231"
     __PORT = 23
     __USER = "x1s"
     __PASSWORD = "Admin12345"
     __ALERT_ON_COMMAND = "#OUTPUT,6,1,1"
     __ALERT_OFF_COMMAND = "#OUTPUT,6,1,0"
-    __PATH = LogManager.create_path(__APP_NAME)
+    __PATH = PathGenerator.create_path(__APP_NAME)
 
 
     def alert():
