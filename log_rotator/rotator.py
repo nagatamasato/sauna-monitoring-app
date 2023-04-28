@@ -9,7 +9,7 @@ class Rotator:
     __ALERT_LOG_PATH = ".\\logs\\alert-log_rotator-log.csv"
 
     # monitor
-    def rotate_monitor_log():
+    def monitor_log_rotation():
         # ディレクトリと条件を指定
         folder_path = "..\\monitor\\logs"
         pattern = r"^2[01][0-9]{2}[01][0-9][0-3][0-9]"
@@ -39,7 +39,7 @@ class Rotator:
             f.write(rotate)
 
     # alert
-    def rotate_alert_log():
+    def alert_log_rotation():
         # しきい値を10MBに設定する
         # threshold = 10 * 1024 * 1024
         # テスト用の設定値
@@ -95,7 +95,7 @@ class Rotator:
 
 
     # log_ratator
-    def rotate_log_rotator_log():
+    def log_rotator_log_rotation():
         # しきい値を10MBに設定する
         # threshold = 10 * 1024 * 1024
         # テスト用の設定値
