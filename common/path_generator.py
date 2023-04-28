@@ -2,7 +2,7 @@ from datetime import datetime
 import os
 
 
-class LogManager:
+class PathGenerator:
 
     __app_name = ""
     __child_folder_path = ""
@@ -10,19 +10,19 @@ class LogManager:
 
     def create_folder():
 
-        app = LogManager.__app_name
+        app = PathGenerator.__app_name
         folder_path = "..\\" + app + "\\logs"
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
         
         if (app == 'monitor'):
-            if not os.path.exists(LogManager.__child_folder_path):
-                os.makedirs(LogManager.__child_folder_path)
+            if not os.path.exists(PathGenerator.__child_folder_path):
+                os.makedirs(PathGenerator.__child_folder_path)
     
     
     def create_path(app):
         
-        LogManager.__app_name = app
+        PathGenerator.__app_name = app
 
         if (app == 'monitor'):
             now_time = datetime.now()
@@ -43,11 +43,11 @@ class LogManager:
 
         if (app == 'monitor'):
             path = ".\\logs\\" + date_str + "\\" + file
-            LogManager.__child_folder_path = "..\\" + app + "\\logs\\" + date_str
+            PathGenerator.__child_folder_path = "..\\" + app + "\\logs\\" + date_str
         else:
             path = ".\\logs\\" + file
             
-        LogManager.create_folder()
+        PathGenerator.create_folder()
 
         print("path", path)
 
