@@ -2,8 +2,6 @@ class GenerateHtml:
 
     def generate_html(hosts):
 
-        print("hosts in generate_html.py", hosts)
-
         # HTMLのテーブルを作成する
         html = "<!DOCTYPE html>\n"
         html += "<html>\n"

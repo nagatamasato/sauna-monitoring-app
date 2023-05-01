@@ -93,6 +93,5 @@ class Monitor:
                 if tn:
                     tn.write(b"exit\n")
                     time.sleep(1)
-                # count += 1
 
         print("get_status END")
