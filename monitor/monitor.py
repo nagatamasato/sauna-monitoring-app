@@ -56,7 +56,8 @@ class Monitor:
                 except:
                     result = "Connection error"
 
-                current_status = result
+                # current_status = result
+                current_status = "1"
                 print("current_status", current_status)
 
                 now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
@@ -74,6 +75,9 @@ class Monitor:
                 # 緊急ボタンONを最初に検知した時刻をセット
                 if hosts[i]['status'] == '1' and hosts[i]['emergency_time'] == "":
                     hosts[i]['emergency_time'] = now
+                    hosts[i]['history'].append(now)
+                    # GenerateHtml.history()
+
                 # 緊急ボタンOFFを検知した場合は空欄に戻す
                 if hosts[i]['status'] == '0':
                     hosts[i]['emergency_time'] = ""
@@ -87,7 +91,8 @@ class Monitor:
                 log = i + "," + current_status + "," + emergency_time + "," + now + "," + hosts[i]['host'] + "\n"
                 f.write(log)
 
-                GenerateHtml.generate_html(hosts)
+                GenerateHtml.monitoring()
+                GenerateHtml.history()
 
                 # terminate Telnet session
                 if tn:
