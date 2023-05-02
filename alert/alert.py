@@ -1,5 +1,6 @@
 from telnetlib import Telnet
 from datetime import datetime
+import json
 import time
 import sys
 sys.path.append('..\\common')
@@ -39,13 +40,12 @@ class Alert:
                 f.write(start)
                 
             for i in range(25):
-                tn.write(Alert.__ALERT_ON_COMMAND.encode("UTF-8") + b"\r\n")  # ALERT_ON
-                # result = tn.read_until(b"QNET> ")
-                # f.write(result.decode("utf-8"))
-                time.sleep(2)  # 2秒待つ
-                tn.write(Alert.__ALERT_OFF_COMMAND.encode("UTF-8") + b"\r\n")  # ALERT_OFF
-                # result = tn.read_until(b"QNET> ")
-                # f.write(result.decode("utf-8"))
+                # ALERT_ON
+                tn.write(Alert.__ALERT_ON_COMMAND.encode("UTF-8") + b"\r\n")
+                # 2秒待つ
+                time.sleep(2)
+                # ALERT_OFF
+                tn.write(Alert.__ALERT_OFF_COMMAND.encode("UTF-8") + b"\r\n")
 
             with open(Alert.__PATH, "a") as f:
                 now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
@@ -63,3 +63,21 @@ class Alert:
                 print("connection error")
         
         print("alert END")
+
+
+    def check_emergency(path):
+
+        with open(path, "r") as f:
+            hosts = json.load(f)
+
+        print("hosts", hosts)
+
+        emergencies = {}
+        for i in hosts:
+            if hosts[i]['status'] == "1":
+                emergencies[i] = hosts[i]
+
+        print("emergencies", emergencies) 
+
+        if (emergencies):
+            Alert.alert()

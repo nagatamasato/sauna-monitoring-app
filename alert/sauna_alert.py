@@ -25,20 +25,13 @@ for i in range(FREQUENCY):
     # 開始時刻
     start = datetime.now()
 
-    with open("..\\hosts.json", "r") as f:
-        hosts = json.load(f)
+    json_files = [
+        "..\\hosts.json",
+        "..\\hosts_2.json"
+    ]
 
-    print("hosts", hosts)
-
-    emergencies = {}
-    for i in hosts:
-        if hosts[i]['status'] == "1":
-            emergencies[i] = hosts[i]
-
-    print("emergencies", emergencies) 
-
-    if (emergencies):
-        Alert.alert()
+    for j in range(len(json_files)):
+        Alert.check_emergency(json_files[j])
 
     end = datetime.now()
     # 実行時間
