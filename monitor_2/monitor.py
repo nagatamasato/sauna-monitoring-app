@@ -12,25 +12,26 @@ from generate_html import GenerateHtml
 
 class Monitor:
 
-    __APP_NAME = "monitor_2"
-    __PORT = 23
-    __USER = "x1s"
-    __PASSWORD = "Admin12345"
-    __GET_STATUS_COMMAND = "?SYSVAR,4,1"
-    __PATH = PathGenerator.create_path(__APP_NAME)
-    __JSON_PATH = "..\\hosts_2.json"
+    def __init__(self, app, json_path):
+        self.app = app
+        self.json_path = json_path
+        self.__PORT = 23
+        self.__USER = "x1s"
+        self.__PASSWORD = "Admin12345"
+        self.__GET_STATUS_COMMAND = "?SYSVAR,4,1"
+        self.__PATH = PathGenerator.create_path(self.app)
 
 
-    def get_status(hosts):
+    def get_status(self, hosts):
 
         print("get_status START")
 
         write_header = False
 
-        if not os.path.exists(Monitor.__PATH):
+        if not os.path.exists(self.__PATH):
             write_header = True
 
-        with open(Monitor.__PATH, "a") as f:
+        with open(self.__PATH, "a") as f:
             if write_header:
                 header = "Room,Status,Emergency_time,Updated_time,Host\n"
                 f.write(header)
@@ -39,13 +40,13 @@ class Monitor:
                 # start Telnet session
                 tn = ""
                 try:
-                    tn = Telnet(hosts[i]['host'], Monitor.__PORT, timeout=5)
+                    tn = Telnet(hosts[i]['host'], self.__PORT, timeout=5)
                     tn.read_until(b"login: ")
-                    tn.write(Monitor.__USER.encode("utf-8") + b"\r\n")
+                    tn.write(self.__USER.encode("utf-8") + b"\r\n")
                     tn.read_until(b"password: ")
-                    tn.write(Monitor.__PASSWORD.encode("utf-8") + b"\r\n")
+                    tn.write(self.__PASSWORD.encode("utf-8") + b"\r\n")
                     tn.read_until(b"QNET> ")
-                    tn.write(Monitor.__GET_STATUS_COMMAND.encode("utf-8") + b"\r\n")
+                    tn.write(self.__GET_STATUS_COMMAND.encode("utf-8") + b"\r\n")
                     result = tn.read_until(b"QNET> ")
                     result = result.decode("utf-8")
                     result = result.replace("QNET> ", "")
@@ -61,7 +62,7 @@ class Monitor:
                 now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
                 print("current time: ", now)
  
-                with open(Monitor.__JSON_PATH, "r") as jsonf:
+                with open(self.json_path, "r") as jsonf:
                     hosts = json.load(jsonf)
 
                 print("statuses", hosts)
@@ -81,7 +82,7 @@ class Monitor:
 
                 hosts[i]['updated_time'] = now
 
-                with open(Monitor.__JSON_PATH, "w") as jsonf:
+                with open(self.json_path, "w") as jsonf:
                     json.dump(hosts, jsonf)
 
                 emergency_time = hosts[i]['emergency_time']
@@ -99,7 +100,7 @@ class Monitor:
         print("get_status END")
 
 
-    def monitoring(path):
+    def monitoring(self):
 
         # 定期実行間隔
         INTERVAL = 60
@@ -109,12 +110,11 @@ class Monitor:
         MARGIN = 0.5
         # １回あたりの最大時間
         MAXTIME = (INTERVAL / FREQUENCY) - MARGIN
-        # MAXTIME = (INTERVAL / FREQUENCY)
 
         start_time = datetime.now()
         print("start_time", start_time)
 
-        with open(path, "r") as f:
+        with open(self.json_path, "r") as f:
             hosts = json.load(f)
 
         for i in range(FREQUENCY):
@@ -122,7 +122,7 @@ class Monitor:
             # 開始時刻
             start = datetime.now()
             # サウナルームのステータスを取得
-            Monitor.get_status(hosts)
+            self.get_status(hosts)
             # 終了時刻
             end = datetime.now()
             # 実行時間

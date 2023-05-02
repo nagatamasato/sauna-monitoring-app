@@ -37,7 +37,7 @@ class PathGenerator:
         else:
             path_date = ""
 
-        file = path_date + app + "-log.csv"
+        file = path_date + app + "_log.csv"
         print("path_date", path_date)
         print("file", file)
 

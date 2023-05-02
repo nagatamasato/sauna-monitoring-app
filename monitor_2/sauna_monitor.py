@@ -1,5 +1,5 @@
 from monitor import Monitor
 
 
-json_path = "..\\hosts_2.json"
-Monitor.monitoring(json_path)
+monitor_2 = Monitor("monitor_2", "..\\hosts_2.json")
+monitor_2.monitoring()
