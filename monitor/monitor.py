@@ -12,14 +12,17 @@ from generate_html import GenerateHtml
 
 class Monitor:
 
-    def __init__(self, app, json_path):
-        self.app = app
+    def __init__(self, job, json_path):
+
+        self.job = job
         self.json_path = json_path
         self.__PORT = 23
         self.__USER = "x1s"
         self.__PASSWORD = "Admin12345"
         self.__GET_STATUS_COMMAND = "?SYSVAR,4,1"
-        self.__PATH = PathGenerator.create_path(self.app)
+
+        path_generator = PathGenerator(self.job)
+        self.__PATH = path_generator.create_path()
 
 
     def get_status(self, hosts):

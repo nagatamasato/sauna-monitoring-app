@@ -19,6 +19,8 @@ if (MAXTIME < 0):
 start_time = datetime.now()
 print("start_time", start_time)
 
+alert = Alert()
+
 for i in range(FREQUENCY):
     print(i + 1, "/", FREQUENCY)
     # 開始時刻
@@ -30,7 +32,7 @@ for i in range(FREQUENCY):
     ]
 
     for j in range(len(json_files)):
-        Alert.check_emergency(json_files[j])
+        alert.check_emergency(json_files[j])
 
     end = datetime.now()
     # 実行時間
