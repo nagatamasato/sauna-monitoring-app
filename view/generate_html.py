@@ -18,7 +18,7 @@ class GenerateHtml:
         html += "   <h1>Sauna rooms monitoring</h1>\n"
         html += '   <div calss="button-wrapper">\n'
         html += "       <button onclick="
-        html += "location.href='file:///C:/Users/IoT-003/sauna_monitoring_app/view/history.html'\n"
+        html += "location.href='history.html'\n"
         html += '           class="btn-square">\n'
         html += "           History\n"
         html += "       </button>\n"
@@ -67,7 +67,7 @@ class GenerateHtml:
         html += "   <h1>Emergency history</h1>\n"
         html += '   <div class="button-wrapper">\n'
         html += "       <button onclick="
-        html += "location.href='file:///C:/Users/IoT-003/sauna_monitoring_app/view/index.html'\n"
+        html += "location.href='index.html'\n"
         html += '           class="btn-square">\n'
         html += "           Monitoring\n"
         html += "       </button>\n"
@@ -85,15 +85,11 @@ class GenerateHtml:
             row = '     <tr><td>{}</td><td>{}</td></tr>\n'.format(room, '</td></tr><tr><td></td><td>'.join(history))
             # テーブルの行を追加
             table_rows += row
-
         # テーブルを作成する
         table = '   <table>\n{} </table>\n'.format(table_header + table_rows)
-
         html += table
         html += "</body>\n"
         html += "</html>"
-
-        print(html)
         # HTMLをファイルに書き出す
         with open('..\\view\\history.html', 'w') as f:
             f.write(html)
