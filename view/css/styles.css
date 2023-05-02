@@ -27,8 +27,8 @@ tr:nth-child(even) {
 
 .btn-square {
 display: inline-block;
-width: 100px; /* 幅を50pxに指定 */
-height: 50px; /* 高さを50pxに指定 */
+width: 100px;
+height: 50px;
 padding: 0.5em 1em;
 text-decoration: none;
 background: #4c4c4c;/*ボタン色*/
