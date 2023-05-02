@@ -11,7 +11,7 @@ class GenerateHtml:
         html = "<!DOCTYPE html>\n"
         html += "<html>\n"
         html += "<head>\n"
-        html += '   <link rel="stylesheet" type="text/css" href="styles.css">\n'
+        html += '   <link rel="stylesheet" type="text/css" href="css/styles.css">\n'
         html += "   <title>Sauna rooms monitoring</title>\n"
         html += "</head>\n"
         html += "<body>\n"
@@ -43,7 +43,7 @@ class GenerateHtml:
         
         html += "       </tbody>\n"
         html += "   </table>\n"
-        html += '<script src="main.js"></script>\n'
+        html += '<script src="js/index.js"></script>\n'
         html += "</body>\n"
         html += "</html>"
 
@@ -60,7 +60,7 @@ class GenerateHtml:
         html = "<!DOCTYPE html>\n"
         html += "<html>\n"
         html += "<head>\n"
-        html += '   <link rel="stylesheet" type="text/css" href="styles.css">\n'
+        html += '   <link rel="stylesheet" type="text/css" href="css/styles.css">\n'
         html += "   <title>Emergency history</title>\n"
         html += "</head>\n"
         html += "<body>\n"
@@ -88,6 +88,7 @@ class GenerateHtml:
         # テーブルを作成する
         table = '   <table>\n{} </table>\n'.format(table_header + table_rows)
         html += table
+        html += '<script src="js/history.js"></script>\n'
         html += "</body>\n"
         html += "</html>"
         # HTMLをファイルに書き出す
