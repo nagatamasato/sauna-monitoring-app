@@ -1,5 +1,6 @@
 __pycache__
 
 monitor/logs/*
+monitor_2/logs/*
 alert/logs/*
 log_rotator/logs/* 

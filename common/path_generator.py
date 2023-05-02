@@ -15,7 +15,7 @@ class PathGenerator:
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
         
-        if (app == 'monitor'):
+        if (app == 'monitor' or 'monitor_2'):
             if not os.path.exists(PathGenerator.__child_folder_path):
                 os.makedirs(PathGenerator.__child_folder_path)
     
@@ -24,7 +24,7 @@ class PathGenerator:
         
         PathGenerator.__app_name = app
 
-        if (app == 'monitor'):
+        if (app == 'monitor' or 'monitor_2'):
             now_time = datetime.now()
             date_str = str(now_time).split()[0].replace("-", "")
             time_str = str(now_time).split()[1].split('.')[0]
@@ -41,7 +41,7 @@ class PathGenerator:
         print("path_date", path_date)
         print("file", file)
 
-        if (app == 'monitor'):
+        if (app == 'monitor' or 'monitor_2'):
             path = ".\\logs\\" + date_str + "\\" + file
             PathGenerator.__child_folder_path = "..\\" + app + "\\logs\\" + date_str
         else:
