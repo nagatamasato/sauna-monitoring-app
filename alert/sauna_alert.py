@@ -1,6 +1,5 @@
 from datetime import datetime
 import time
-import json
 
 from alert import Alert
 
@@ -20,25 +19,20 @@ if (MAXTIME < 0):
 start_time = datetime.now()
 print("start_time", start_time)
 
+alert = Alert()
+
 for i in range(FREQUENCY):
     print(i + 1, "/", FREQUENCY)
     # 開始時刻
     start = datetime.now()
 
-    with open("..\\hosts.json", "r") as f:
-        hosts = json.load(f)
+    json_files = [
+        "..\\hosts.json",
+        "..\\hosts_2.json"
+    ]
 
-    print("hosts", hosts)
-
-    emergencies = {}
-    for i in hosts:
-        if hosts[i]['status'] == "1":
-            emergencies[i] = hosts[i]
-
-    print("emergencies", emergencies) 
-
-    if (emergencies):
-        Alert.alert()
+    for j in range(len(json_files)):
+        alert.check_emergency(json_files[j])
 
     end = datetime.now()
     # 実行時間
