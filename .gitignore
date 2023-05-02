@@ -1,4 +1,7 @@
+__pycache__
+
 monitor/logs/*
 alert/logs/*
-log_rotator/logs/*
+log_rotator/logs/* 
 view/index.html
+view/history.html
