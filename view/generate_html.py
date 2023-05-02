@@ -16,7 +16,7 @@ class GenerateHtml:
         html += "</head>\n"
         html += "<body>\n"
         html += "   <h1>Sauna rooms monitoring</h1>\n"
-        html += '   <div calss="button-wrapper">\n'
+        html += '   <div class="button-wrapper">\n'
         html += "       <button onclick="
         html += "location.href='history.html'\n"
         html += '           class="btn-square">\n'
@@ -54,7 +54,7 @@ class GenerateHtml:
 
     def history():
 
-        with open("..\\allHosts.json", "r") as jsonf:
+        with open("..\\hosts.json", "r") as jsonf:
             hosts = json.load(jsonf)
         # HTML生成
         html = "<!DOCTYPE html>\n"
