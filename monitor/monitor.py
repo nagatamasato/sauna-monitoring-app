@@ -39,13 +39,11 @@ class Monitor:
                 tn = ""
                 try:
                     tn = Telnet(hosts[i]['host'], Monitor.__PORT, timeout=5)
-                    # tn = Telnet(host, PORT)
                     tn.read_until(b"login: ")
                     tn.write(Monitor.__USER.encode("utf-8") + b"\r\n")
                     tn.read_until(b"password: ")
                     tn.write(Monitor.__PASSWORD.encode("utf-8") + b"\r\n")
                     tn.read_until(b"QNET> ")
-                    # run command
                     tn.write(Monitor.__GET_STATUS_COMMAND.encode("utf-8") + b"\r\n")
                     result = tn.read_until(b"QNET> ")
                     result = result.decode("utf-8")
@@ -56,8 +54,7 @@ class Monitor:
                 except:
                     result = "Connection error"
 
-                # current_status = result
-                current_status = "1"
+                current_status = result
                 print("current_status", current_status)
 
                 now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
@@ -76,7 +73,6 @@ class Monitor:
                 if hosts[i]['status'] == '1' and hosts[i]['emergency_time'] == "":
                     hosts[i]['emergency_time'] = now
                     hosts[i]['history'].append(now)
-                    # GenerateHtml.history()
 
                 # 緊急ボタンOFFを検知した場合は空欄に戻す
                 if hosts[i]['status'] == '0':
