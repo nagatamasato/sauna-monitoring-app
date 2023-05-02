@@ -1,19 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
-   <link rel="stylesheet" type="text/css" href="styles.css">
+   <link rel="stylesheet" type="text/css" href="css/styles.css">
    <title>Sauna rooms monitoring</title>
 </head>
 <body>
    <h1>Sauna rooms monitoring</h1>
+   <div class="button-wrapper">
+       <button onclick=location.href='history.html'
+           class="btn-square">
+           History
+       </button>
+   </div>
    <table>
        <thead>
            <tr><th>Room</th><th>Status</th><th>Emergency time</th><th>Updated time</th><th>Host</th></tr>
        </thead>
        <tbody id="hosts">
-           <tr><td>101</td><td>Connection error</td><td></td><td>2023/04/27 16:27:44</td><td>192.168.10.200</td></tr>
+           <tr><td>101</td><td>Normal</td><td></td><td>2023/05/02 11:25:20</td><td>192.168.10.200</td></tr>
        </tbody>
    </table>
-<script src="main.js"></script>
+<script src="js/index.js"></script>
 </body>
 </html>
