@@ -1,6 +1,5 @@
 from datetime import datetime
 import time
-
 from alert import Alert
 
 

@@ -5,8 +5,8 @@ import json
 import time
 import sys
 sys.path.append('..\\common')
-sys.path.append('..\\view')
 from path_generator import PathGenerator
+sys.path.append('..\\view')
 from generate_html import GenerateHtml
 
 
