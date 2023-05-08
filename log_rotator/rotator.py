@@ -5,11 +5,13 @@ from datetime import datetime
 
 class Rotator:
     
-    __MONITOR_LOG_PATH = ".\\logs\\monitor-log_rotator-log.csv"
-    __ALERT_LOG_PATH = ".\\logs\\alert-log_rotator-log.csv"
+    def __init__(self):
+
+        self.__MONITOR_LOG_PATH = ".\\logs\\monitor-log_rotator-log.csv"
+        self.__ALERT_LOG_PATH = ".\\logs\\alert-log_rotator-log.csv"
 
     # monitor
-    def monitor_log_rotation():
+    def monitor_log_rotation(self):
         # ディレクトリと条件を指定
         folder_path = "..\\monitor\\logs"
         pattern = r"^2[01][0-9]{2}[01][0-9][0-3][0-9]"
@@ -33,13 +35,13 @@ class Rotator:
                 message = "Error: " + e.filename + " - " + e.strerror + "."
         print(message)
 
-        with open(Rotator.__MONITOR_LOG_PATH, "a") as f:
+        with open(self.__MONITOR_LOG_PATH, "a") as f:
             now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
             rotate = now + "," + message + "\n"
             f.write(rotate)
 
     # alert
-    def alert_log_rotation():
+    def alert_log_rotation(self):
         # しきい値を10MBに設定する
         # threshold = 10 * 1024 * 1024
         # テスト用の設定値
@@ -88,14 +90,14 @@ class Rotator:
                 message = "Error: " + e.filename + " - " + e.strerror + "."
         print(message)
 
-        with open(Rotator.__ALERT_LOG_PATH, "a") as f:
+        with open(self.__ALERT_LOG_PATH, "a") as f:
             now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
             rotate = now + "," + message + "\n"
             f.write(rotate)
 
 
     # log_ratator
-    def log_rotator_log_rotation():
+    def log_rotator_log_rotation(self):
         # しきい値を10MBに設定する
         # threshold = 10 * 1024 * 1024
         # テスト用の設定値

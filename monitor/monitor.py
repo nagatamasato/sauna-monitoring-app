@@ -96,13 +96,9 @@ class Monitor:
                 log = i + "," + current_status + "," + emergency_time + "," + now + "," + hosts[i]['host'] + "\n"
                 f.write(log)
 
-                print("before new")
                 view = GenerateHtml()
-                print("after new")
                 view.monitoring()
-                print("after call monitioring()")
                 view.history()
-                print("after call history")
 
                 # terminate Telnet session
                 if tn:
