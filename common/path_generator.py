@@ -43,7 +43,7 @@ class PathGenerator:
 
         if (job == 'monitor' or 'monitor_2'):
             path = ".\\logs\\" + date_str + "\\" + file
-            self.__child_folder_path = "..\\" + job + "\\logs\\" + date_str
+            self.__child_folder_path = ".\\logs\\" + date_str
         else:
             path = ".\\logs\\" + file
             

@@ -5,8 +5,8 @@ import json
 import time
 import sys
 sys.path.append('..\\common')
-sys.path.append('..\\view')
 from path_generator import PathGenerator
+sys.path.append('..\\view')
 from generate_html import GenerateHtml
 
 
@@ -25,7 +25,7 @@ class Monitor:
         self.__PATH = path_generator.create_path()
 
 
-    def get_status(self, hosts):
+    def get_status(self):
 
         print("get_status START")
 
@@ -39,6 +39,10 @@ class Monitor:
                 header = "Room,Status,Emergency_time,Updated_time,Host\n"
                 f.write(header)
                 write_header = False
+
+            with open(self.json_path, "r") as jsonf:
+                hosts = json.load(jsonf)
+                
             for i in hosts:
                 # start Telnet session
                 tn = ""
@@ -92,8 +96,13 @@ class Monitor:
                 log = i + "," + current_status + "," + emergency_time + "," + now + "," + hosts[i]['host'] + "\n"
                 f.write(log)
 
-                GenerateHtml.monitoring()
-                GenerateHtml.history()
+                print("before new")
+                view = GenerateHtml()
+                print("after new")
+                view.monitoring()
+                print("after call monitioring()")
+                view.history()
+                print("after call history")
 
                 # terminate Telnet session
                 if tn:
@@ -125,7 +134,7 @@ class Monitor:
             # 開始時刻
             start = datetime.now()
             # サウナルームのステータスを取得
-            self.get_status(hosts)
+            self.get_status()
             # 終了時刻
             end = datetime.now()
             # 実行時間
