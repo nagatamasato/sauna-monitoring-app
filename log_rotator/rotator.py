@@ -164,6 +164,11 @@ class Rotator:
             for room in hosts.items():
                 history = room[1]['history']
 
-                for j in range(len(history)):
-                    if j > 2:
-                        del history[j]
+                if len(history) > 3:
+                    for j in range(len(history) - 3):
+                        print("j", j)
+                        print("history[0]", history[0])
+                        del history[0]
+
+            with open(hosts_files[i], "w") as jsonf:
+                json.dump(hosts, jsonf)
