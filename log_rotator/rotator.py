@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import shutil
@@ -9,6 +10,10 @@ class Rotator:
 
         self.__MONITOR_LOG_PATH = ".\\logs\\monitor-log_rotator-log.csv"
         self.__ALERT_LOG_PATH = ".\\logs\\alert-log_rotator-log.csv"
+        self.__hosts_files = [
+            "..\\hosts.json",
+            "..\\hosts_2.json"
+        ]
 
     # monitor
     def monitor_log_rotation(self):
@@ -95,7 +100,6 @@ class Rotator:
             rotate = now + "," + message + "\n"
             f.write(rotate)
 
-
     # log_ratator
     def log_rotator_log_rotation(self):
         # しきい値を10MBに設定する
@@ -148,3 +152,18 @@ class Rotator:
                 except OSError as e:
                     message = "Error: " + e.filename + " - " + e.strerror + "."
             print(message)
+
+    # historyは3つ残して他は削除
+    def history_rotation(self):
+
+        hosts_files = self.__hosts_files
+        for i in range(len(hosts_files)):
+            with open(hosts_files[i], "r") as jsonf:
+                hosts = json.load(jsonf)
+
+            for room in hosts.items():
+                history = room[1]['history']
+
+                for j in range(len(history)):
+                    if j > 2:
+                        del history[j]
