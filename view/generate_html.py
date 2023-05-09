@@ -31,7 +31,7 @@ class GenerateHtml:
         html += "   </div>\n"
         html += "   <table>\n"
         html += "       <thead>\n"
-        html += "           <tr><th>Room</th><th>Status</th><th>Emergency time</th><th>Updated time</th><th>Host</th></tr>\n"
+        html += "           <tr><th>Room</th><th>Status</th><th>Last emergency</th><th>Updated time</th><th>Host</th></tr>\n"
         html += "       </thead>\n"
         html += '       <tbody id="hosts">\n'
 
@@ -47,9 +47,11 @@ class GenerateHtml:
                     status = "Emergency"
                 elif info['status'] == '0':
                     status = "Normal"
-                emergency_time = info['emergency_time']
+                last_emergency = ""
+                if info['history']:
+                    last_emergency = info['history'][-1]
                 updated_time = info['updated_time']
-                html += f"           <tr><td>{room}</td><td>{status}</td><td>{emergency_time}</td><td>{updated_time}</td><td>{host}</td></tr>\n"
+                html += f"           <tr><td>{room}</td><td>{status}</td><td>{last_emergency}</td><td>{updated_time}</td><td>{host}</td></tr>\n"
             
         html += "       </tbody>\n"
         html += "   </table>\n"
@@ -69,10 +71,10 @@ class GenerateHtml:
         html += "<html>\n"
         html += "<head>\n"
         html += '   <link rel="stylesheet" type="text/css" href="css/styles.css">\n'
-        html += "   <title>Emergency history</title>\n"
+        html += "   <title>History of the last three</title>\n"
         html += "</head>\n"
         html += "<body>\n"
-        html += "   <h1>Emergency history</h1>\n"
+        html += "   <h1>History of the last three</h1>\n"
         html += '   <div class="button-wrapper">\n'
         html += "       <button onclick="
         html += "location.href='index.html'\n"
