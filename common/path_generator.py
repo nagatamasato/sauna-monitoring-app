@@ -4,27 +4,25 @@ import os
 
 class PathGenerator:
 
-    def __init__(self, job):
-        self.job = job
+    def __init__(self, job_name):
+        self.job_name = job_name
         self.__child_folder_path = ""
 
 
     def create_folder(self):
 
-        job = self.job
-        folder_path = "..\\" + job + "\\logs"
+        folder_path = "..\\" + self.job_name + "\\logs"
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
         
-        if (job == 'monitor' or 'monitor_2'):
+        if (self.job_name == 'monitor' or 'monitor_2'):
             if not os.path.exists(self.__child_folder_path):
                 os.makedirs(self.__child_folder_path)
     
     
     def create_path(self):
         
-        job = self.job
-        if (job == 'monitor' or 'monitor_2'):
+        if (self.job_name == 'monitor' or 'monitor_2'):
             now_time = datetime.now()
             date_str = str(now_time).split()[0].replace("-", "")
             time_str = str(now_time).split()[1].split('.')[0]
@@ -37,11 +35,11 @@ class PathGenerator:
         else:
             path_date = ""
 
-        file = path_date + job + "_log.csv"
+        file = path_date + self.job_name + "_log.csv"
         print("path_date", path_date)
         print("file", file)
 
-        if (job == 'monitor' or 'monitor_2'):
+        if (self.job_name == 'monitor' or 'monitor_2'):
             path = ".\\logs\\" + date_str + "\\" + file
             self.__child_folder_path = ".\\logs\\" + date_str
         else:
