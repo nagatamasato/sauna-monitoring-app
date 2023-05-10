@@ -1,7 +1,7 @@
 // 自動更新
 setTimeout(function () {
     location.reload();
-}, 500);
+}, 1000);
 
 // stausの値に応じてテーブルの背景色を変更する
 function setBgColor(status, color) {
