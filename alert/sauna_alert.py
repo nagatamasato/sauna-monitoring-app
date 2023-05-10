@@ -26,8 +26,9 @@ for i in range(FREQUENCY):
     start = datetime.now()
 
     json_files = [
-        "..\\hosts.json",
-        "..\\hosts_2.json"
+        "..\\hosts_1.json",
+        "..\\hosts_2.json",
+        "..\\hosts_3.json"
     ]
 
     for j in range(len(json_files)):

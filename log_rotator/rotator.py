@@ -11,8 +11,9 @@ class Rotator:
         self.__MONITOR_LOG_PATH = ".\\logs\\monitor-log_rotator-log.csv"
         self.__ALERT_LOG_PATH = ".\\logs\\alert-log_rotator-log.csv"
         self.__hosts_files = [
-            "..\\hosts.json",
-            "..\\hosts_2.json"
+            "..\\hosts_1.json",
+            "..\\hosts_2.json",
+            "..\\hosts_3.json"
         ]
 
     # monitor

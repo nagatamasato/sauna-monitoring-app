@@ -113,7 +113,7 @@ class Monitor:
         # 定期実行間隔
         INTERVAL = 60
         # 1回のINTERVAL中の実行回数
-        FREQUENCY = 6
+        FREQUENCY = 10
         # 実行時間がINTERVAL(60秒)を超えないように設定
         MARGIN = 0.5
         # １回あたりの最大時間
