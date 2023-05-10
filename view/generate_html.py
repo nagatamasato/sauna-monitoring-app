@@ -6,8 +6,9 @@ class GenerateHtml:
     def __init__(self):
 
         self.__hosts_files = [
-            "..\\hosts.json",
-            "..\\hosts_2.json"
+            "..\\hosts_1.json",
+            "..\\hosts_2.json",
+            "..\\hosts_3.json"
         ]
 
 

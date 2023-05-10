@@ -12,9 +12,9 @@ from generate_html import GenerateHtml
 
 class Monitor:
 
-    def __init__(self, job, json_path):
+    def __init__(self, job_name, json_path):
 
-        self.job = job
+        self.job = job_name
         self.json_path = json_path
         self.__PORT = 23
         self.__USER = "x1s"
@@ -113,7 +113,7 @@ class Monitor:
         # 定期実行間隔
         INTERVAL = 60
         # 1回のINTERVAL中の実行回数
-        FREQUENCY = 6
+        FREQUENCY = 10
         # 実行時間がINTERVAL(60秒)を超えないように設定
         MARGIN = 0.5
         # １回あたりの最大時間
@@ -121,9 +121,6 @@ class Monitor:
 
         start_time = datetime.now()
         print("start_time", start_time)
-
-        with open(self.json_path, "r") as f:
-            hosts = json.load(f)
 
         for i in range(FREQUENCY):
             print(i + 1, "/", FREQUENCY)

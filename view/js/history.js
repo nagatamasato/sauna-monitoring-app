@@ -1,4 +1,4 @@
 // 自動更新
 setTimeout(function () {
-    location.reload(true);
+    location.reload();
 }, 60 * 1000);
