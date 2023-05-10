@@ -53,7 +53,7 @@ class Rotator:
         # テスト用の設定値
         threshold = 16
         folder_path = "..\\alert\\logs"
-        file_name = "alert-log.csv"
+        file_name = "alert_log.csv"
         # ファイルの相対パスを取得する
         file_path = os.path.join(folder_path, file_name)
         # ファイルサイズを取得する
@@ -73,7 +73,7 @@ class Rotator:
                 os.rename(file_path, new_file_path)
                 print(f"{file_name} has been renamed to {new_file_name}")
 
-        pattern = r"^alert-log_2[01][0-9]{2}[01][0-9][0-3][0-9][0-2][0-9]([0-5][0-9]){2}\.csv$"
+        pattern = r"^alert_log_2[01][0-9]{2}[01][0-9][0-3][0-9][0-2][0-9]([0-5][0-9]){2}\.csv$"
         log_files = []
         # ログファイルを数える
         for i in os.listdir(folder_path):
@@ -87,13 +87,15 @@ class Rotator:
 
         message = "No more than 3 alert log files."
         if len(log_files) > 3:
-            oldest_file = min(log_files)
-            try: 
-                os.remove(folder_path + "\\" + oldest_file)
-                message = "Alert log files exceeded 3. Deleted " + oldest_file + " was deleted."
-                print(message)
-            except OSError as e:
-                message = "Error: " + e.filename + " - " + e.strerror + "."
+            for i in range(len(log_files) - 3):
+                oldest_file = min(log_files)
+                try: 
+                    os.remove(folder_path + "\\" + oldest_file)
+                    log_files.remove(oldest_file)
+                    message = "Alert log files exceeded 3. Deleted " + oldest_file + " was deleted."
+                    print(message)
+                except OSError as e:
+                    message = "Error: " + e.filename + " - " + e.strerror + "."
         print(message)
 
         with open(self.__ALERT_LOG_PATH, "a") as f:

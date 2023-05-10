@@ -11,7 +11,7 @@ class Alert:
 
     def __init__(self):
 
-        self.job = "alert"
+        self.job_name = "alert"
         self.__HOST = "192.168.10.231"
         self.__PORT = 23
         self.__USER = "x1s"
@@ -19,15 +19,13 @@ class Alert:
         self.__ALERT_ON_COMMAND = "#OUTPUT,6,1,1"
         self.__ALERT_OFF_COMMAND = "#OUTPUT,6,1,0"
 
-        path_generator = PathGenerator(self.job)
+        path_generator = PathGenerator(self.job_name)
         self.__PATH = path_generator.create_path()
 
 
     def alert(self):
 
         print("alert START")
-
-        
 
         try:
             # Telnetセッションを開始
