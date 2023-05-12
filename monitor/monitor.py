@@ -22,7 +22,7 @@ class Monitor:
         self.__GET_STATUS_COMMAND = "?SYSVAR,4,1"
 
         path_generator = PathGenerator(self.job)
-        self.__PATH = path_generator.create_path()
+        self.__LOG_PATH = path_generator.create_path()
 
 
     def get_status(self):
@@ -31,10 +31,10 @@ class Monitor:
 
         write_header = False
 
-        if not os.path.exists(self.__PATH):
+        if not os.path.exists(self.__LOG_PATH):
             write_header = True
 
-        with open(self.__PATH, "a") as f:
+        with open(self.__LOG_PATH, "a") as f:
             if write_header:
                 header = "Room,Status,Emergency_time,Updated_time,Host\n"
                 f.write(header)
@@ -61,7 +61,7 @@ class Monitor:
                     result = result.splitlines()[0].split(',')[3]
 
                 except:
-                    result = "Connection error"
+                    result = "Connection Error"
 
                 current_status = result
                 print("current_status", current_status)
