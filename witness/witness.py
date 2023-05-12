@@ -18,21 +18,19 @@ class Witness:
     def report(self):
 
         message = "Hi, Sauna Emergency App is working fine."
+        connection_errors = ""
 
-        connection_errors = {}
         for i in range(len(self.__HOSTS_FILES)):
             with open(self.__HOSTS_FILES[i], "r") as f:
                 hosts = json.load(f)
 
-            for j in hosts:
-                if hosts[j]['status'] == "Connection Error":
-                    connection_errors[j] = hosts[j]
-                    print(j, connection_errors[j])
+            for key in hosts:
+                if hosts[key]['status'] == "Connection Error":
+                    message = "Hi, I got a Connection Error in the next sauna room.<br>"
+                    connection_errors += key + "<br>"
 
-            if (connection_errors):
-                message = "Hi, I got a Connection Error in the next sauna room.\n"
-                message += str(connection_errors)
-
+        print("connection_errors", connection_errors)
+        message += connection_errors
         myTeamsMessage = pymsteams.connectorcard(self.__TEAMS_URL)
         myTeamsMessage.title("Witness Report")
         myTeamsMessage.text(message)
