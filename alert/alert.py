@@ -20,7 +20,7 @@ class Alert:
         self.__ALERT_OFF_COMMAND = "#OUTPUT,6,1,0"
 
         path_generator = PathGenerator(self.job_name)
-        self.__PATH = path_generator.create_path()
+        self.__LOG_PATH = path_generator.create_path()
 
 
     def alert(self):
@@ -36,7 +36,7 @@ class Alert:
             tn.write(self.__PASSWORD.encode("UTF-8") + b"\r\n")
             tn.read_until(b"QNET> ")
 
-            with open(self.__PATH, "a") as f:
+            with open(self.__LOG_PATH, "a") as f:
                 now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
                 start = now + ",alert START\n"
                 f.write(start)
@@ -49,7 +49,7 @@ class Alert:
                 # ALERT_OFF
                 tn.write(self.__ALERT_OFF_COMMAND.encode("UTF-8") + b"\r\n")
 
-            with open(self.__PATH, "a") as f:
+            with open(self.__LOG_PATH, "a") as f:
                 now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
                 end = now + ",alert END\n"
                 f.write(end)
@@ -58,7 +58,7 @@ class Alert:
             tn.write(b"exit\r\n")
         
         except:
-            with open(self.__PATH, "a") as f:
+            with open(self.__LOG_PATH, "a") as f:
                 now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
                 connection_error = now + ",connection error\n"
                 f.write(connection_error)
@@ -67,9 +67,9 @@ class Alert:
         print("alert END")
 
 
-    def check_emergency(self, path):
+    def check_emergency(self, hosts_file):
 
-        with open(path, "r") as f:
+        with open(hosts_file, "r") as f:
             hosts = json.load(f)
 
         print("hosts", hosts)

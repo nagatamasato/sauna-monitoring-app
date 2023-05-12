@@ -1,7 +1,7 @@
 // 自動更新
 setTimeout(function () {
     location.reload();
-}, 500);
+}, 1000);
 
 // stausの値に応じてテーブルの背景色を変更する
 function setBgColor(status, color) {
@@ -16,4 +16,4 @@ function setBgColor(status, color) {
 }
 // statusが1なら背景色を赤色にする
 setBgColor("Emergency", 'red');
-setBgColor("Connection error", 'yellow');
+setBgColor("Connection Error", 'yellow');

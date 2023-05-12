@@ -25,14 +25,14 @@ for i in range(FREQUENCY):
     # 開始時刻
     start = datetime.now()
 
-    json_files = [
+    hosts_files = [
         "..\\hosts_1.json",
         "..\\hosts_2.json",
         "..\\hosts_3.json"
     ]
 
-    for j in range(len(json_files)):
-        alert.check_emergency(json_files[j])
+    for j in range(len(hosts_files)):
+        alert.check_emergency(hosts_files[j])
 
     end = datetime.now()
     # 実行時間

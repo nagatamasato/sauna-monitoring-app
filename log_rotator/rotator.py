@@ -48,10 +48,10 @@ class Rotator:
 
     # alert
     def alert_log_rotation(self):
-        # しきい値を10MBに設定する
-        # threshold = 10 * 1024 * 1024
+        # しきい値を100MBに設定する
+        threshold = 100 * 1024 * 1024
         # テスト用の設定値
-        threshold = 16
+        # threshold = 16
         folder_path = "..\\alert\\logs"
         file_name = "alert_log.csv"
         # ファイルの相対パスを取得する
@@ -105,10 +105,10 @@ class Rotator:
 
     # log_ratator
     def log_rotator_log_rotation(self):
-        # しきい値を10MBに設定する
-        # threshold = 10 * 1024 * 1024
+        # しきい値を100MBに設定する
+        threshold = 100 * 1024 * 1024
         # テスト用の設定値
-        threshold = 64
+        # threshold = 64
         folder_path = "..\\log_rotator\\logs"
         files = [
             "monitor-log_rotator-log.csv",
@@ -169,9 +169,12 @@ class Rotator:
 
                 if len(history) > 3:
                     for j in range(len(history) - 3):
+                        oldest_date = min(history)
                         print("j", j)
-                        print("history[0]", history[0])
-                        del history[0]
+                        print("oldest_date", oldest_date)
+                        history.remove(oldest_date)
+                        message = "History exceeded 3. " + oldest_date + " was deleted."
+                        print(message)
 
             with open(hosts_files[i], "w") as jsonf:
                 json.dump(hosts, jsonf)
