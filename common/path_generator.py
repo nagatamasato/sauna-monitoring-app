@@ -15,44 +15,19 @@ class PathGenerator:
         if not os.path.exists(self.__LOG_FOLDER):
             os.makedirs(self.__LOG_FOLDER)
         
-        if self.job_name in [
-            'monitor_1', 
-            'monitor_2', 
-            'monitor_3'
-        ]:
-            if not os.path.exists(self.__child_log_folder):
-                os.makedirs(self.__child_log_folder)
+        if not os.path.exists(self.__child_log_folder):
+            os.makedirs(self.__child_log_folder)
 
-    
+
     def create_path(self):
         
-        if self.job_name in [
-            'monitor_1',
-            'monitor_2',
-            'monitor_3'
-        ]:
-            now_time = datetime.now()
-            date_str = str(now_time).split()[0].replace("-", "")
-            # time_str = str(now_time).split()[1].split('.')[0]
-            # path_number = time_str.split(':')[0] + time_str.split(':')[1][0]
-            # path_date = date_str + "_" + path_number + "_"
-            path_date = date_str + "_"
-        else:
-            path_date = ""
-
+        now_time = datetime.now()
+        date_str = str(now_time).split()[0].replace("-", "")
+        path_date = date_str + "_"
         file = path_date + self.job_name + "_log.csv"
-
-        if self.job_name in [
-            'monitor_1',
-            'monitor_2',
-            'monitor_3'
-        ]:
-            log_folder_name = str(now_time).split()[0].split('-')[0] + str(now_time).split()[0].split('-')[1]
-            self.__child_log_folder = self.__LOG_FOLDER + "\\" + log_folder_name
-            path = self.__LOG_FOLDER + "\\" + log_folder_name + "\\" + file
-
-        else:
-            path = self.__LOG_FOLDER + "\\" + file
+        log_folder_name = str(now_time).split()[0].split('-')[0] + str(now_time).split()[0].split('-')[1]
+        self.__child_log_folder = self.__LOG_FOLDER + "\\" + log_folder_name
+        path = self.__LOG_FOLDER + "\\" + log_folder_name + "\\" + file
             
         self.create_folder()
 
