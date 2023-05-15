@@ -14,14 +14,14 @@ class Monitor:
 
     def __init__(self, job_name, json_path):
 
-        self.job = job_name
+        self.job_name = job_name
         self.json_path = json_path
         self.__PORT = 23
         self.__USER = "x1s"
         self.__PASSWORD = "Admin12345"
         self.__GET_STATUS_COMMAND = "?SYSVAR,4,1"
 
-        path_generator = PathGenerator(self.job)
+        path_generator = PathGenerator(self.job_name)
         self.__LOG_PATH = path_generator.create_path()
 
 

@@ -47,8 +47,9 @@ class PathGenerator:
             'monitor_2',
             'monitor_3'
         ]:
-            self.__child_log_folder = self.__LOG_FOLDER + "\\" + date_str
-            path = self.__LOG_FOLDER + "\\" + date_str + "\\" + file
+            log_folder_name = str(now_time).split()[0].split('-')[0] + str(now_time).split()[0].split('-')[1]
+            self.__child_log_folder = self.__LOG_FOLDER + "\\" + log_folder_name
+            path = self.__LOG_FOLDER + "\\" + log_folder_name + "\\" + file
 
         else:
             path = self.__LOG_FOLDER + "\\" + file
