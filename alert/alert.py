@@ -88,11 +88,11 @@ class Alert:
         with open(self.__LOG_PATH, "a") as f:
             now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
             if emergency_rooms:
-                log = now + ",Emergency in " + emergency_rooms + "\n"
+                log = now + ",The following is Emergency " + emergency_rooms + "\n"
             elif connection_errors:
-                log = now + ",Connection Error in " + connection_errors + "\n"
+                log = now + ",The following is Connection Error " + connection_errors + "\n"
             else:
-                log = now + ",Normal in " + normal_rooms + "\n"
+                log = now + ",The following is Normal " + normal_rooms + "\n"
             f.write(log)
 
         if emergency_rooms:

@@ -117,8 +117,8 @@ class Rotator:
             with open(hosts_files[i], "r") as jsonf:
                 hosts = json.load(jsonf)
 
-            for room in hosts.items():
-                history = room[1]['history']
+            for room in hosts:
+                history = hosts[room]['history']
 
                 while len(history) > 3:
                     oldest_date = min(history)
