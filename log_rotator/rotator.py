@@ -14,7 +14,7 @@ class Rotator:
             "..\\hosts_3.json"
         ]
 
-    # monitor
+
     def app_log_rotation(self, app_name):
 
         print(app_name + " log_rotation START")
@@ -31,22 +31,23 @@ class Rotator:
         print(app_name + " のログフォルダの数: " + str(len(log_dirs)))
         print("log_dirs", log_dirs)
 
-        message = "No more than 3 " + app_name + " log folders."
-        if len(log_dirs) > 3:
-            oldest_dir = min(log_dirs)
-            try: 
-                shutil.rmtree(folder_path + "\\" + oldest_dir)
-                message = app_name + " log folders exceeded 3. " + oldest_dir + " was deleted."
-            except OSError as e:
-                message = "Error: " + e.filename + " - " + e.strerror + "."
-        print(message)
-
         app_log_path = ".\\logs\\" + app_name + "-log_rotator-log.csv"
-        with open(app_log_path, "a") as f:
-            now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-            log = now + "," + message + "\n"
-            f.write(log)
-
+        if len(log_dirs) > 3:
+            while len(log_dirs) > 3:
+                oldest_dir = min(log_dirs)
+                shutil.rmtree(folder_path + "\\" + oldest_dir)
+                log_dirs.remove(oldest_dir)
+                message = app_name + " log folders exceeded 3. " + oldest_dir + " was deleted."
+                with open(app_log_path, "a") as f:
+                    now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+                    log = now + "," + message + "\n"
+                    f.write(log)
+        else:
+            message = "No more than 3 " + app_name + " log folders."
+            with open(app_log_path, "a") as f:
+                    now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+                    log = now + "," + message + "\n"
+                    f.write(log)
         print(app_name + " log_rotation END")
 
 
@@ -56,7 +57,7 @@ class Rotator:
         # しきい値を100MBに設定する
         threshold = 100 * 1024 * 1024
         # テスト用の設定値
-        # threshold = 64
+        # threshold = 256
         folder_path = ".\\logs"
         files = [
             "monitor-log_rotator-log.csv",
@@ -116,17 +117,15 @@ class Rotator:
             with open(hosts_files[i], "r") as jsonf:
                 hosts = json.load(jsonf)
 
-            for room in hosts.items():
-                history = room[1]['history']
+            for room in hosts:
+                history = hosts[room]['history']
 
-                if len(history) > 3:
-                    for j in range(len(history) - 3):
-                        oldest_date = min(history)
-                        print("j", j)
-                        print("oldest_date", oldest_date)
-                        history.remove(oldest_date)
-                        message = "History exceeded 3. " + oldest_date + " was deleted."
-                        print(message)
+                while len(history) > 3:
+                    oldest_date = min(history)
+                    print("oldest_date", oldest_date)
+                    history.remove(oldest_date)
+                    message = "History exceeded 3. " + oldest_date + " was deleted."
+                    print(message)
 
             with open(hosts_files[i], "w") as jsonf:
                 json.dump(hosts, jsonf)

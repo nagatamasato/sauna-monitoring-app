@@ -41,17 +41,17 @@ class GenerateHtml:
             with open(hosts_files[i], "r") as jsonf:
                 hosts = json.load(jsonf)
             # JSONデータを解析し、各行のデータをテーブルに追加する
-            for room, info in hosts.items():
-                host = info['host']
-                status = info['status']
-                if info['status'] == '1':
+            for room in hosts:
+                host = hosts[room]['host']
+                status = hosts[room]['status']
+                if hosts[room]['status'] == '1':
                     status = "Emergency"
-                elif info['status'] == '0':
+                elif hosts[room]['status'] == '0':
                     status = "Normal"
                 last_emergency = ""
-                if info['history']:
-                    last_emergency = info['history'][-1]
-                updated_time = info['updated_time']
+                if hosts[room]['history']:
+                    last_emergency = hosts[room]['history'][-1]
+                updated_time = hosts[room]['updated_time']
                 html += f"           <tr><td>{room}</td><td>{status}</td><td>{last_emergency}</td><td>{updated_time}</td><td>{host}</td></tr>\n"
             
         html += "       </tbody>\n"
@@ -93,9 +93,9 @@ class GenerateHtml:
             with open(hosts_files[i], "r") as jsonf:
                 hosts = json.load(jsonf)
             # テーブルの各行を作成
-            for room, history in hosts.items():
+            for room in hosts:
                 # 日付の降順にソート
-                history = sorted(history['history'], reverse=True)
+                history = sorted(hosts[room]['history'], reverse=True)
                 # テーブルの行を作成
                 row = '     <tr><td>{}</td><td>{}</td></tr>\n'.format(room, '</td></tr><tr><td></td><td>'.join(history))
                 # テーブルの行を追加

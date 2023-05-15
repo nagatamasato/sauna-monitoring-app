@@ -33,11 +33,11 @@ class Witness:
             with open(self.__HOSTS_FILES[i], "r") as f:
                 hosts = json.load(f)
 
-            for key in hosts:
-                if hosts[key]['status'] == "Connection Error":
+            for room in hosts:
+                if hosts[room]['status'] == "Connection Error":
                     self.__connection_message = "Hi, I got a Connection Error in the next sauna room.<br>"
-                    connection_errors += key + "<br>"
-        print("connection_errors", connection_errors)
+                    connection_errors += room + "<br>"
+        print("Connection Errors", connection_errors)
         self.__connection_message += connection_errors
 
 
