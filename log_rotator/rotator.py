@@ -8,8 +8,6 @@ class Rotator:
     
     def __init__(self):
 
-        self.__MONITOR_LOG_PATH = ".\\logs\\monitor-log_rotator-log.csv"
-        self.__ALERT_LOG_PATH = ".\\logs\\alert-log_rotator-log.csv"
         self.__hosts_files = [
             "..\\hosts_1.json",
             "..\\hosts_2.json",
@@ -17,11 +15,11 @@ class Rotator:
         ]
 
     # monitor
-    def monitor_log_rotation(self):
+    def app_log_rotation(self, app_name):
 
-        print("monitor_log_rotation START")
+        print(app_name + " log_rotation START")
         # ディレクトリと条件を指定
-        folder_path = "..\\monitor\\logs"
+        folder_path = "..\\" + app_name + "\\logs"
         pattern = r"^2[01][0-9]{2}[01][0-9]"
         log_dirs = []
         # ログフォルダを数える
@@ -30,88 +28,28 @@ class Rotator:
                 log_dirs.append(i)
             print("file", i)
         # 結果を表示
-        print("monitorのログフォルダの数: ", len(log_dirs))
+        print(app_name + " のログフォルダの数: " + str(len(log_dirs)))
         print("log_dirs", log_dirs)
 
-        message = "No more than 3 monitor log folders."
+        message = "No more than 3 " + app_name + " log folders."
         if len(log_dirs) > 3:
             oldest_dir = min(log_dirs)
             try: 
                 shutil.rmtree(folder_path + "\\" + oldest_dir)
-                message = "Monitor log folders exceeded 3. " + oldest_dir + " was deleted."
+                message = app_name + " log folders exceeded 3. " + oldest_dir + " was deleted."
             except OSError as e:
                 message = "Error: " + e.filename + " - " + e.strerror + "."
         print(message)
 
-        with open(self.__MONITOR_LOG_PATH, "a") as f:
+        app_log_path = ".\\logs\\" + app_name + "-log_rotator-log.csv"
+        with open(app_log_path, "a") as f:
             now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-            rotation_log = now + "," + message + "\n"
-            f.write(rotation_log)
+            log = now + "," + message + "\n"
+            f.write(log)
 
-        print("monitor_log_rotation END")
+        print(app_name + " log_rotation END")
 
-    # alert
-    def alert_log_rotation(self):
 
-        print("alert_log_rotation START")
-        # しきい値を100MBに設定する
-        threshold = 100 * 1024 * 1024
-        # テスト用の設定値
-        # threshold = 16
-        folder_path = "..\\alert\\logs"
-        file_name = "alert_log.csv"
-        # ファイルの相対パスを取得する
-        file_path = os.path.join(folder_path, file_name)
-        # ファイルサイズを取得する
-        if os.path.exists(file_path):
-            file_size = os.path.getsize(file_path)
-            print("file_size", file_size)
-
-            # ファイルサイズがしきい値を超えた場合、ファイル名を変更する
-            if (file_size > threshold):
-                suffix = str(datetime.now()).split(".")[0]
-                suffix = suffix.replace("-", "")
-                suffix = suffix.replace(":", "")
-                suffix = suffix.replace(" ", "")
-                print(suffix)
-                new_file_name = file_name.split('.')[0] + "_" + suffix + "." + file_name.split('.')[1]
-                new_file_path = os.path.join(folder_path, new_file_name)
-                os.rename(file_path, new_file_path)
-                print(f"{file_name} has been renamed to {new_file_name}")
-
-        pattern = r"^alert_log_2[01][0-9]{2}[01][0-9][0-3][0-9][0-2][0-9]([0-5][0-9]){2}\.csv$"
-        log_files = []
-        # ログファイルを数える
-        for i in os.listdir(folder_path):
-            if os.path.isfile(os.path.join(folder_path, i)) and re.search(pattern, i):
-                log_files.append(i)
-            print("file", i)
-
-        # 結果を表示
-        print("alertのログファイルの数: ", len(log_files))
-        print("log_files", log_files)
-
-        message = "No more than 3 alert log files."
-        if len(log_files) > 3:
-            for i in range(len(log_files) - 3):
-                oldest_file = min(log_files)
-                try: 
-                    os.remove(folder_path + "\\" + oldest_file)
-                    log_files.remove(oldest_file)
-                    message = "Alert log files exceeded 3. Deleted " + oldest_file + " was deleted."
-                    print(message)
-                except OSError as e:
-                    message = "Error: " + e.filename + " - " + e.strerror + "."
-        print(message)
-
-        with open(self.__ALERT_LOG_PATH, "a") as f:
-            now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-            rotation_log = now + "," + message + "\n"
-            f.write(rotation_log)
-
-        print("alert_log_rotation END")
-
-    # log_ratator
     def log_rotator_log_rotation(self):
 
         print("log_rotator_log_rotation START")
@@ -119,7 +57,7 @@ class Rotator:
         threshold = 100 * 1024 * 1024
         # テスト用の設定値
         # threshold = 64
-        folder_path = "..\\log_rotator\\logs"
+        folder_path = ".\\logs"
         files = [
             "monitor-log_rotator-log.csv",
             "alert-log_rotator-log.csv"
@@ -168,7 +106,7 @@ class Rotator:
 
         print("log_rotator_log_rotation END")
 
-    # historyは3つ残して他は削除
+
     def history_rotation(self):
 
         print("history_rotation START")
