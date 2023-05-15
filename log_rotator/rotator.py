@@ -55,9 +55,9 @@ class Rotator:
 
         print("log_rotator_log_rotation START")
         # しきい値を100MBに設定する
-        # threshold = 100 * 1024 * 1024
+        threshold = 100 * 1024 * 1024
         # テスト用の設定値
-        threshold = 256
+        # threshold = 256
         folder_path = ".\\logs"
         files = [
             "monitor-log_rotator-log.csv",
