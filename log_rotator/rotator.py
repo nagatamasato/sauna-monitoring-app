@@ -18,9 +18,11 @@ class Rotator:
 
     # monitor
     def monitor_log_rotation(self):
+
+        print("monitor_log_rotation START")
         # ディレクトリと条件を指定
         folder_path = "..\\monitor\\logs"
-        pattern = r"^2[01][0-9]{2}[01][0-9][0-3][0-9]"
+        pattern = r"^2[01][0-9]{2}[01][0-9]"
         log_dirs = []
         # ログフォルダを数える
         for i in os.listdir(folder_path):
@@ -43,11 +45,15 @@ class Rotator:
 
         with open(self.__MONITOR_LOG_PATH, "a") as f:
             now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-            rotate = now + "," + message + "\n"
-            f.write(rotate)
+            rotation_log = now + "," + message + "\n"
+            f.write(rotation_log)
+
+        print("monitor_log_rotation END")
 
     # alert
     def alert_log_rotation(self):
+
+        print("alert_log_rotation START")
         # しきい値を100MBに設定する
         threshold = 100 * 1024 * 1024
         # テスト用の設定値
@@ -100,11 +106,15 @@ class Rotator:
 
         with open(self.__ALERT_LOG_PATH, "a") as f:
             now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-            rotate = now + "," + message + "\n"
-            f.write(rotate)
+            rotation_log = now + "," + message + "\n"
+            f.write(rotation_log)
+
+        print("alert_log_rotation END")
 
     # log_ratator
     def log_rotator_log_rotation(self):
+
+        print("log_rotator_log_rotation START")
         # しきい値を100MBに設定する
         threshold = 100 * 1024 * 1024
         # テスト用の設定値
@@ -156,8 +166,12 @@ class Rotator:
                     message = "Error: " + e.filename + " - " + e.strerror + "."
             print(message)
 
+        print("log_rotator_log_rotation END")
+
     # historyは3つ残して他は削除
     def history_rotation(self):
+
+        print("history_rotation START")
 
         hosts_files = self.__hosts_files
         for i in range(len(hosts_files)):
@@ -178,3 +192,5 @@ class Rotator:
 
             with open(hosts_files[i], "w") as jsonf:
                 json.dump(hosts, jsonf)
+
+        print("history_rotation END")
