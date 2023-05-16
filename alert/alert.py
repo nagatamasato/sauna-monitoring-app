@@ -60,9 +60,9 @@ class Alert:
         except:
             with open(self.__LOG_PATH, "a") as f:
                 now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-                connection_error = now + ",connection error\n"
+                connection_error = now + ",Connection Error. Can't ring the chime.\n"
                 f.write(connection_error)
-                print("connection error")
+                print("Connection Error")
         
         print("alert END")
 
@@ -74,12 +74,26 @@ class Alert:
 
         print("hosts", hosts)
 
-        emergencies = {}
-        for i in hosts:
-            if hosts[i]['status'] == "1":
-                emergencies[i] = hosts[i]
+        emergency_rooms = ""
+        connection_errors = ""
+        normal_rooms = ""
+        for room in hosts:
+            if hosts[room]['status'] == "1":
+                emergency_rooms += room + " "
+            elif hosts[room]['status'] == "Connection Error":
+                connection_errors += room + " "
+            else:
+                normal_rooms += room + " "
 
-        print("emergencies", emergencies) 
+        with open(self.__LOG_PATH, "a") as f:
+            now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+            if emergency_rooms:
+                log = now + ",The following is Emergency " + emergency_rooms + "\n"
+            elif connection_errors:
+                log = now + ",The following is Connection Error " + connection_errors + "\n"
+            else:
+                log = now + ",The following is Normal " + normal_rooms + "\n"
+            f.write(log)
 
-        if (emergencies):
+        if emergency_rooms:
             self.alert()
