@@ -1,5 +1,7 @@
-import pymsteams
+from datetime import datetime
 import json
+import os
+import pymsteams
 
 
 class Witness:
@@ -12,16 +14,33 @@ class Witness:
             "..\\hosts_2.json",
             "..\\hosts_3.json"
         ]
-        self.__monitor_log = ""
-        self.__alert_log = ""
-        self.__monitor_log_rotation_log = ""
-        self.__alert_log_rotation_log = ""
-        self.__connection_message = ""
+
+        # monitor
+        self.__monitor_log = "..\\monitor\\logs"
         self.__monitor_1_message = ""
         self.__monitor_2_message = ""
         self.__monitor_3_message = ""
+
+        # alert
+        self.__alert_log = "..\\alert\\logs"
         self.__alert_message = ""
+
+        # log rotation
+        self.__monitor_log_rotation_log = "..\\log_rotator\\logs"
+        self.__alert_log_rotation_log = ""
         self.__log_rotation_message = ""
+
+        # connection error
+        self.__connection_message = ""
+
+
+    def get_last_line(file_name):
+        with open(file_name, 'rb') as f:
+            f.seek(-2, os.SEEK_END)
+            while f.read(1) != b'\n':
+                f.seek(-2, os.SEEK_CUR)
+            last_line = f.readline().decode()
+        return last_line
 
 
     def connection_check(self):
@@ -42,7 +61,20 @@ class Witness:
 
 
     def monitor_1_check(self):
-        self.__monitor_1_message = ""
+        # file_name = self.__monitor_log + "\\202305\\" + "20230515_monitor_1_log.csv"
+        file_name = "..\\monitor\\logs\\202305\\20230515_monitor_1_log.csv"
+        print("file_name", file_name)
+        last_line = Witness.get_last_line(file_name)
+        with open(".\\test.txt", "a") as f:
+            f.write(last_line)
+        print("last_line", last_line)
+        print(type(last_line))
+        date_time = last_line.split(',')[3].replace('/', '-')
+        print("date_time", date_time)
+        time_diff = (datetime.now() - datetime.strptime(date_time, '%Y-%m-%d %H:%M:%S')).total_seconds()
+        print("time_diff", time_diff)
+        if time_diff > 10:
+            self.__monitor_1_message = "Error, Update time has not been updated for 10 seconds.<br>"
     
 
     def monitor_2_check(self):
@@ -62,7 +94,6 @@ class Witness:
 
 
     def report(self):
-        self.connection_check()
         teams_message = pymsteams.connectorcard(self.__TEAMS_URL)
         teams_message.title("Witness Report")
         teams_message.text(self.__connection_message)
