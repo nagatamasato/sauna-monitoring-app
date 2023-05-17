@@ -8,7 +8,7 @@ INTERVAL = 60
 # 1回のINTERVAL中の実行回数
 FREQUENCY = 30
 # 余裕を持たせるための時間(これがないと実行時間がINTERVAL(60秒)を超える)
-MARGIN = 0.5
+MARGIN = 0.05
 # １回あたりの最大時間
 MAXTIME = (INTERVAL / FREQUENCY) - MARGIN
 

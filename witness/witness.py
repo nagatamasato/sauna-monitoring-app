@@ -9,8 +9,9 @@ import re
 class Witness:
 
     def __init__(self):
-        # Webhook URL
+        # Teams Webhook
         self.__TEAMS_URL = "https://x1studiocojp.webhook.office.com/webhookb2/2359c523-6ff7-4e43-9cce-b924c34b9a1b@3e594155-a0af-40ef-a8f2-dc8ce23f3844/IncomingWebhook/5798f01fbb53408ea38a9651139d18ea/4eb77287-1789-4810-b206-e1c3bd304107"
+        self.__teams_title = "TEST on Development Environment"
         self.__teams_text = ""
         self.__HOSTS_FILES = [
             "..\\hosts_1.json",
@@ -37,7 +38,7 @@ class Witness:
 
     def report(self):
         teams_message = pymsteams.connectorcard(self.__TEAMS_URL)
-        teams_message.title("TEST on Development Environment")
+        teams_message.title(self.__teams_title)
         self.get_teams_text()
         teams_message.text(self.__teams_text)
         teams_message.send()
@@ -60,7 +61,7 @@ class Witness:
 
         print("-----  sauna_current_connection check START  -----")
 
-        prefix = "Connection - Sauna rooms: "
+        prefix = "Connection - sauna rooms: "
         message = "ok<br>"
         connection_errors = ""
 
@@ -71,7 +72,7 @@ class Witness:
                 if hosts[room]['status'] == "Connection Error":
                     connection_errors += room + "<br>"
         if connection_errors:
-            message = "Hi, I got a Connection Error in the next sauna room.<br>" + connection_errors
+            message = "Warning. Connection Error detected in the next sauna room.<br>" + connection_errors
         print("Connection Errors", connection_errors)
         self.__connection_message = prefix + message
 
