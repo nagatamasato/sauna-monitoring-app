@@ -3,6 +3,7 @@ import json
 import os
 import pymsteams
 import collections
+import re
 
 
 class Witness:
@@ -18,13 +19,13 @@ class Witness:
         ]
 
         # monitor
-        self.__monitor_log = "..\\monitor\\logs"
+        self.__monitor_log_dir = "..\\monitor\\logs"
         self.__monitor_1_message = ""
         self.__monitor_2_message = ""
         self.__monitor_3_message = ""
 
         # alert
-        self.__alert_log = "..\\alert\\logs"
+        self.__alert_log_dir = "..\\alert\\logs"
         self.__alert_message = ""
 
         # log rotation - monitor
@@ -48,7 +49,7 @@ class Witness:
 
 
     def get_teams_text(self):
-        self.__teams_text = self.__connection_message + self.__monitor_log_rotation_message + self.__alert_log_rotation_message
+        self.__teams_text = self.__connection_message + self.__alert_message + self.__monitor_log_rotation_message + self.__alert_log_rotation_message
     
 
     def get_last_lines(self, file_path, n):
@@ -60,21 +61,17 @@ class Witness:
             return []
 
 
-    def connection_check(self):
+    def sauna_current_connection(self):
 
-        prefix = "Connection - monitor: "
+        prefix = "Connection - Sauna rooms: "
         message = "ok<br>"
-
-        self.__connection_message = "Hi, Sauna Emergency App is working fine."
         connection_errors = ""
 
         for i in range(len(self.__HOSTS_FILES)):
             with open(self.__HOSTS_FILES[i], "r") as f:
                 hosts = json.load(f)
-
             for room in hosts:
                 if hosts[room]['status'] == "Connection Error":
-                    message = "Hi, I got a Connection Error in the next sauna room.<br>"
                     connection_errors += room + "<br>"
         if connection_errors:
             message = "Hi, I got a Connection Error in the next sauna room.<br>" + connection_errors
@@ -82,7 +79,7 @@ class Witness:
         self.__connection_message = prefix + message
 
 
-    def monitor_1_check(self):
+    def monitor_1(self):
         # file_name = self.__monitor_log + "\\202305\\" + "20230515_monitor_1_log.csv"
         file_path = "..\\monitor\\logs\\202305\\20230515_monitor_1_log.csv"
         print("file_name", file_path)
@@ -102,19 +99,48 @@ class Witness:
             self.__monitor_1_message = "Error, Update time has not been updated for 10 seconds.<br>"
     
 
-    def monitor_2_check(self):
+    def monitor_2(self):
         self.__monitor_2_message = ""
 
 
-    def monitor_3_check(self):
+    def monitor_3(self):
         self.__monitor_3_message = ""
     
 
-    def alert_cehck(self):
-        self.__alert_message = ""
+    def alert(self):
+
+        dir_name_pattern = r"^2[01][0-9]{2}[01][0-9]"
+        file_name_pattern = r"^2[01][0-9]{2}[01][0-9][0-3][0-9]_alert_log.csv"
+        log_dirs = []
+        if os.path.exists(self.__alert_log_dir):
+            for i in os.listdir(self.__alert_log_dir):
+                if os.path.isdir(os.path.join(self.__alert_log_dir, i)) and re.search(dir_name_pattern, i):
+                    log_dirs.append(i)
+        target_dir = max(log_dirs)
+        print("log_dirs", log_dirs)
+        print("target_dir", target_dir)
+        target_path = os.path.join(self.__alert_log_dir, target_dir)
+        file_list = []
+        for i in os.listdir(target_path):
+            if re.search(file_name_pattern, i):
+                file_list.append(i)
+        print("file_list", file_list)
+        target_file = max(file_list)
+        target_file_path = os.path.join(target_path, target_file)
+        print("target_file_path", target_file_path)
+        last_line = self.get_last_lines(target_file_path, 1)
+        last_updated = last_line[0].split(',')[0].replace('/', '-')
+        time_diff = (datetime.now() - datetime.strptime(last_updated, '%Y-%m-%d %H:%M:%S')).total_seconds()
+
+        prefix = "Health check - alert: "
+        message = "ok<br>"
+        if time_diff > 5:
+            message = "Warning. 5 seconds have passed since the last alert log.<br>"
+            
+        self.__alert_message = prefix + message
 
 
-    def log_rotation_check(self, app_name):
+    def log_rotation(self, app_name):
 
         if app_name == 'monitor':
             file_path = self.__monitor_log_rotation_log
