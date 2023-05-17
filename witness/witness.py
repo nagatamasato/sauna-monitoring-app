@@ -2,6 +2,7 @@ from datetime import datetime
 import json
 import os
 import pymsteams
+import collections
 
 
 class Witness:
@@ -47,18 +48,22 @@ class Witness:
 
 
     def get_teams_text(self):
-        self.__teams_text = self.__monitor_log_rotation_message + self.__alert_log_rotation_message + self.__connection_message
+        self.__teams_text = self.__connection_message + self.__monitor_log_rotation_message + self.__alert_log_rotation_message
+    
 
-    def get_last_line(self, file_path):
-        with open(file_path, 'rb') as f:
-            f.seek(-2, os.SEEK_END)
-            while f.read(1) != b'\n':
-                f.seek(-2, os.SEEK_CUR)
-            last_line = f.readline().decode()
-        return last_line
+    def get_last_lines(self, file_path, n):
+        try:
+            with open(file_path, 'r') as f:
+                return collections.deque(f, n)
+        except FileNotFoundError:
+            print(f"{file_path} not found.")
+            return []
 
 
     def connection_check(self):
+
+        prefix = "Connection - monitor: "
+        message = "ok<br>"
 
         self.__connection_message = "Hi, Sauna Emergency App is working fine."
         connection_errors = ""
@@ -69,22 +74,27 @@ class Witness:
 
             for room in hosts:
                 if hosts[room]['status'] == "Connection Error":
-                    self.__connection_message = "Hi, I got a Connection Error in the next sauna room.<br>"
+                    message = "Hi, I got a Connection Error in the next sauna room.<br>"
                     connection_errors += room + "<br>"
+        if connection_errors:
+            message = "Hi, I got a Connection Error in the next sauna room.<br>" + connection_errors
         print("Connection Errors", connection_errors)
-        self.__connection_message += connection_errors
+        self.__connection_message = prefix + message
 
 
     def monitor_1_check(self):
         # file_name = self.__monitor_log + "\\202305\\" + "20230515_monitor_1_log.csv"
         file_path = "..\\monitor\\logs\\202305\\20230515_monitor_1_log.csv"
         print("file_name", file_path)
-        last_line = self.get_last_line(file_path)
+        last_line = self.get_last_lines(file_path, 1)
+        print("last_line", last_line)
+        print("type(last_line)", type(last_line))
+        print("last_line[0]", last_line[0])
         with open(".\\test.txt", "a") as f:
-            f.write(last_line)
+            f.write(last_line[0])
         print("last_line", last_line)
         print(type(last_line))
-        date_time = last_line.split(',')[3].replace('/', '-')
+        date_time = last_line[0].split(',')[3].replace('/', '-')
         print("date_time", date_time)
         time_diff = (datetime.now() - datetime.strptime(date_time, '%Y-%m-%d %H:%M:%S')).total_seconds()
         print("time_diff", time_diff)
@@ -111,15 +121,19 @@ class Witness:
         else:
             file_path = self.__alert_log_rotation_log
 
-        last_line = self.get_last_line(file_path)
-        date_time = last_line.split(',')[0].replace('/', '-')
-        time_diff = (datetime.now() - datetime.strptime(date_time, '%Y-%m-%d %H:%M:%S')).total_seconds() / 60
-        print("time_diff", time_diff)
+        if os.path.exists(file_path):
+            last_line = self.get_last_lines(file_path, 1)
+            date_time = last_line[0].split(',')[0].replace('/', '-')
+            time_diff = (datetime.now() - datetime.strptime(date_time, '%Y-%m-%d %H:%M:%S')).total_seconds() / 60
+            print("last_line", last_line)
+            print("type(last_line)", type(last_line))
+            print("last_line[0]", last_line[0])
+            print("time_diff", time_diff)
 
         prefix = "Log rotation - " + app_name + ": "
 
         message = "ok<br>"
-        if time_diff > 70:
+        if os.path.exists(file_path) and time_diff > 70:
             message = "Warning. 70 minutes have passed since the last log rotation. Log rotation is executed once every 60 minutes.<br>"
 
         if app_name == 'monitor':
