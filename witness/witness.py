@@ -18,15 +18,10 @@ class Witness:
             "..\\hosts_3.json"
         ]
 
-        # monitor
+        #health check
+        self.__health_check_message = ""
         self.__monitor_log_dir = "..\\monitor\\logs"
-        self.__monitor_1_message = ""
-        self.__monitor_2_message = ""
-        self.__monitor_3_message = ""
-
-        # alert
         self.__alert_log_dir = "..\\alert\\logs"
-        self.__alert_message = ""
 
         # log rotation - monitor
         self.__monitor_log_rotation_log = "..\\log_rotator\\logs\\monitor-log_rotator-log.csv"
@@ -36,7 +31,7 @@ class Witness:
         self.__alert_log_rotation_log = "..\\log_rotator\\logs\\alert-log_rotator-log.csv"
         self.__alert_log_rotation_message = ""
 
-        # connection error
+        # connection - sauna rooms
         self.__connection_message = ""
 
 
@@ -49,7 +44,7 @@ class Witness:
 
 
     def get_teams_text(self):
-        self.__teams_text = self.__connection_message + self.__alert_message + self.__monitor_log_rotation_message + self.__alert_log_rotation_message
+        self.__teams_text = self.__connection_message + self.__health_check_message + self.__monitor_log_rotation_message + self.__alert_log_rotation_message
     
 
     def get_last_lines(self, file_path, n):
@@ -62,6 +57,8 @@ class Witness:
 
 
     def sauna_current_connection(self):
+
+        print("-----  sauna_current_connection check START  -----")
 
         prefix = "Connection - Sauna rooms: "
         message = "ok<br>"
@@ -78,48 +75,32 @@ class Witness:
         print("Connection Errors", connection_errors)
         self.__connection_message = prefix + message
 
-
-    def monitor_1(self):
-        # file_name = self.__monitor_log + "\\202305\\" + "20230515_monitor_1_log.csv"
-        file_path = "..\\monitor\\logs\\202305\\20230515_monitor_1_log.csv"
-        print("file_name", file_path)
-        last_line = self.get_last_lines(file_path, 1)
-        print("last_line", last_line)
-        print("type(last_line)", type(last_line))
-        print("last_line[0]", last_line[0])
-        with open(".\\test.txt", "a") as f:
-            f.write(last_line[0])
-        print("last_line", last_line)
-        print(type(last_line))
-        date_time = last_line[0].split(',')[3].replace('/', '-')
-        print("date_time", date_time)
-        time_diff = (datetime.now() - datetime.strptime(date_time, '%Y-%m-%d %H:%M:%S')).total_seconds()
-        print("time_diff", time_diff)
-        if time_diff > 10:
-            self.__monitor_1_message = "Error, Update time has not been updated for 10 seconds.<br>"
-    
-
-    def monitor_2(self):
-        self.__monitor_2_message = ""
+        print("-----  sauna_current_connection check END  -----")
 
 
-    def monitor_3(self):
-        self.__monitor_3_message = ""
-    
+    def health_check(self, job_name):
 
-    def alert(self):
+        print("-----  health check START  ----- ", job_name)
 
-        dir_name_pattern = r"^2[01][0-9]{2}[01][0-9]"
-        file_name_pattern = r"^2[01][0-9]{2}[01][0-9][0-3][0-9]_alert_log.csv"
+        dir_name_pattern = r"^2[01][0-9]{2}[01][0-9]"        
+        file_name_pattern = r"^2[01][0-9]{2}[01][0-9][0-3][0-9]_" + job_name + "_log.csv"
         log_dirs = []
-        if os.path.exists(self.__alert_log_dir):
-            for i in os.listdir(self.__alert_log_dir):
-                if os.path.isdir(os.path.join(self.__alert_log_dir, i)) and re.search(dir_name_pattern, i):
+        if job_name == 'alert':
+            log_dir_path = self.__alert_log_dir
+            index = 0
+            threshold = 5
+        else:
+            log_dir_path = self.__monitor_log_dir
+            index = 3
+            threshold = 10
+        if os.path.exists(log_dir_path):
+            for i in os.listdir(log_dir_path):
+                if os.path.isdir(os.path.join(log_dir_path, i)) and re.search(dir_name_pattern, i):
                     log_dirs.append(i)
         target_dir = max(log_dirs)
         print("log_dirs", log_dirs)
         print("target_dir", target_dir)
-        target_path = os.path.join(self.__alert_log_dir, target_dir)
+        target_path = os.path.join(log_dir_path, target_dir)
         file_list = []
         for i in os.listdir(target_path):
             if re.search(file_name_pattern, i):
@@ -129,18 +110,24 @@ class Witness:
         target_file_path = os.path.join(target_path, target_file)
         print("target_file_path", target_file_path)
         last_line = self.get_last_lines(target_file_path, 1)
-        last_updated = last_line[0].split(',')[0].replace('/', '-')
+        last_updated = last_line[0].split(',')[index].replace('/', '-')
         time_diff = (datetime.now() - datetime.strptime(last_updated, '%Y-%m-%d %H:%M:%S')).total_seconds()
+        print("time_diff", time_diff)
+        print("type(time_diff)", type(time_diff))
+        print("int(time_diff)", int(time_diff))
 
-        prefix = "Health check - alert: "
+        prefix = "Health check - " + job_name + ": "
         message = "ok<br>"
-        if time_diff > 5:
-            message = "Warning. 5 seconds have passed since the last alert log.<br>"
+        if time_diff > threshold:
+            message = "Warning. " + str(int(time_diff)) + " seconds have passed since the last log.<br>"
             
-        self.__alert_message = prefix + message
+        self.__health_check_message += prefix + message
+        print("-----  health check END  ----- ", job_name)
 
 
     def log_rotation(self, app_name):
+        
+        print("-----  log_rotation check START  ----- ", app_name)
 
         if app_name == 'monitor':
             file_path = self.__monitor_log_rotation_log
@@ -155,14 +142,17 @@ class Witness:
             print("type(last_line)", type(last_line))
             print("last_line[0]", last_line[0])
             print("time_diff", time_diff)
+            print("type(time_diff)", type(time_diff))
+            print("int(time_diff)", int(time_diff))
 
-        prefix = "Log rotation - " + app_name + ": "
+        prefix = "Health check - log_rotator - " + app_name + ": "
 
         message = "ok<br>"
         if os.path.exists(file_path) and time_diff > 70:
-            message = "Warning. 70 minutes have passed since the last log rotation. Log rotation is executed once every 60 minutes.<br>"
+            message = "Warning. " + str(int(time_diff)) + " minutes have passed since the last log rotation. Log rotation is executed once every 60 minutes.<br>"
 
         if app_name == 'monitor':
             self.__monitor_log_rotation_message = prefix + message
         else:
             self.__alert_log_rotation_message = prefix + message
+        print("-----  log_rotation check END  ----- ", app_name)
