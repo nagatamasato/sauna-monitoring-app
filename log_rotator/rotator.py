@@ -8,11 +8,18 @@ class Rotator:
     
     def __init__(self):
 
+        self.__LOGS_DIR = ".\\logs"
         self.__hosts_files = [
             "..\\hosts_1.json",
             "..\\hosts_2.json",
             "..\\hosts_3.json"
         ]
+
+    
+    def check_logs_dir_is(self):
+
+        if not os.path.exists(self.__LOGS_DIR):
+            os.makedirs(self.__LOGS_DIR)
 
 
     def app_log_rotation(self, app_name):

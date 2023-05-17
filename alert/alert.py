@@ -41,13 +41,12 @@ class Alert:
                 start = now + ",alert START\n"
                 f.write(start)
                 
-            for i in range(25):
+            for i in range(14):
                 # ALERT_ON
                 tn.write(self.__ALERT_ON_COMMAND.encode("UTF-8") + b"\r\n")
-                # 2秒待つ
                 time.sleep(2)
-                # ALERT_OFF
                 tn.write(self.__ALERT_OFF_COMMAND.encode("UTF-8") + b"\r\n")
+                time.sleep(2)
 
             with open(self.__LOG_PATH, "a") as f:
                 now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")

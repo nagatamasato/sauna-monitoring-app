@@ -6,6 +6,7 @@ start_time = datetime.now()
 print("rotation_START_time", start_time)
 
 rotator = Rotator()
+rotator.check_logs_dir_is()
 rotator.app_log_rotation('monitor')
 rotator.app_log_rotation('alert')
 rotator.log_rotator_log_rotation()

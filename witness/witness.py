@@ -95,6 +95,6 @@ class Witness:
 
     def report(self):
         teams_message = pymsteams.connectorcard(self.__TEAMS_URL)
-        teams_message.title("Witness Report")
+        teams_message.title("TEST on Development Environment")
         teams_message.text(self.__connection_message)
         teams_message.send()
