@@ -23,6 +23,10 @@ class Witness:
         self.__health_check_message = ""
         self.__monitor_log_dir = "..\\monitor\\logs"
         self.__alert_log_dir = "..\\alert\\logs"
+        self.__monitor_1_log_file_path = self.get_log_file_path('monitor_1')
+        self.__monitor_2_log_file_path = self.get_log_file_path('monitor_2')
+        self.__monitor_3_log_file_path = self.get_log_file_path('monitor_3')
+        self.__alert_log_file_path = self.get_log_file_path('alert')
 
         # log rotation - monitor
         self.__monitor_log_rotation_log = "..\\log_rotator\\logs\\monitor-log_rotator-log.csv"
@@ -32,9 +36,9 @@ class Witness:
         self.__alert_log_rotation_log = "..\\log_rotator\\logs\\alert-log_rotator-log.csv"
         self.__alert_log_rotation_message = ""
 
-        # connection - sauna rooms
-        self.__connection_message = ""
-
+        # connection
+        self.__sauna_connection_message = ""
+        self.__chime_connection_message = ""
 
     def report(self):
         teams_message = pymsteams.connectorcard(self.__TEAMS_URL)
@@ -45,7 +49,7 @@ class Witness:
 
 
     def get_teams_text(self):
-        self.__teams_text = self.__connection_message + self.__health_check_message + self.__monitor_log_rotation_message + self.__alert_log_rotation_message
+        self.__teams_text = self.__chime_connection_message + self.__sauna_connection_message + self.__health_check_message + self.__monitor_log_rotation_message + self.__alert_log_rotation_message
     
 
     def get_last_lines(self, file_path, n):
@@ -55,6 +59,35 @@ class Witness:
         except FileNotFoundError:
             print(f"{file_path} not found.")
             return []
+
+    def get_log_file_path(self, job_name):
+
+        print("-----  get_log_file_path() START  ----- ", job_name)
+        dir_name_pattern = r"^2[01][0-9]{2}[01][0-9]"        
+        file_name_pattern = r"^2[01][0-9]{2}[01][0-9][0-3][0-9]_" + job_name + "_log.csv"
+        log_dirs = []
+        if job_name == 'alert':
+            log_dir_path = self.__alert_log_dir
+        else:
+            log_dir_path = self.__monitor_log_dir
+        if os.path.exists(log_dir_path):
+            for i in os.listdir(log_dir_path):
+                if os.path.isdir(os.path.join(log_dir_path, i)) and re.search(dir_name_pattern, i):
+                    log_dirs.append(i)
+        target_dir = max(log_dirs)
+        print("log_dirs", log_dirs)
+        print("target_dir", target_dir)
+        target_path = os.path.join(log_dir_path, target_dir)
+        file_list = []
+        for i in os.listdir(target_path):
+            if re.search(file_name_pattern, i):
+                file_list.append(i)
+        print("file_list", file_list)
+        target_file = max(file_list)
+        target_file_path = os.path.join(target_path, target_file)
+        print("target_file_path", target_file_path)
+        print("-----  get_log_file_path() END  ----- ", job_name)
+        return target_file_path
 
 
     def sauna_current_connection(self):
@@ -74,42 +107,25 @@ class Witness:
         if connection_errors:
             message = "Warning. Connection Error detected in the next sauna room.<br>" + connection_errors
         print("Connection Errors", connection_errors)
-        self.__connection_message = prefix + message
+        self.__sauna_connection_message = prefix + message
 
         print("-----  sauna_current_connection check END  -----")
+
+
+    def chime_connection(self):
+        last_lines = self.get_last_lines()
 
 
     def health_check(self, job_name):
 
         print("-----  health check START  ----- ", job_name)
-
-        dir_name_pattern = r"^2[01][0-9]{2}[01][0-9]"        
-        file_name_pattern = r"^2[01][0-9]{2}[01][0-9][0-3][0-9]_" + job_name + "_log.csv"
-        log_dirs = []
         if job_name == 'alert':
-            log_dir_path = self.__alert_log_dir
             index = 0
             threshold = 5
         else:
-            log_dir_path = self.__monitor_log_dir
             index = 3
             threshold = 10
-        if os.path.exists(log_dir_path):
-            for i in os.listdir(log_dir_path):
-                if os.path.isdir(os.path.join(log_dir_path, i)) and re.search(dir_name_pattern, i):
-                    log_dirs.append(i)
-        target_dir = max(log_dirs)
-        print("log_dirs", log_dirs)
-        print("target_dir", target_dir)
-        target_path = os.path.join(log_dir_path, target_dir)
-        file_list = []
-        for i in os.listdir(target_path):
-            if re.search(file_name_pattern, i):
-                file_list.append(i)
-        print("file_list", file_list)
-        target_file = max(file_list)
-        target_file_path = os.path.join(target_path, target_file)
-        print("target_file_path", target_file_path)
+        target_file_path = self.get_log_file_path(job_name)
         last_line = self.get_last_lines(target_file_path, 1)
         last_updated = last_line[0].split(',')[index].replace('/', '-')
         time_diff = (datetime.now() - datetime.strptime(last_updated, '%Y-%m-%d %H:%M:%S')).total_seconds()
