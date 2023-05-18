@@ -23,12 +23,16 @@ class Witness:
         self.__alert_witness_threshold = 5
         self.__log_rotator_witness_threshold = 70
         self.__notes = '''<br>- - - - - - - - - - - - - - - - - - - - notes - - - - - - - - - - - - - - - - - - - -<br>
-        [Connection]: Check if a timeout has occurred. Timeout threshold is {} sec.<br>
-        [Health check]: Verify that the script is working properly by checking if the log update date/time is updated within the threshold.<br>
-        The thresholds are as follows<br>
-        ・monitor_[1-3]: {} sec<br>
-        ・alert: {} sec<br>
-        ・log_rotator: {} min<br>
+        [Connection]:<br>
+            Check if a timeout has occurred. Timeout threshold is {} sec.<br>
+        <br>
+        [Health check]:<br>
+            Verify that the script is working properly<br>
+            by checking if the log update date/time is updated within the threshold.<br>
+            The thresholds are as follows<br>
+                ・monitor_[1-3]: {} sec<br>
+                ・alert: {} sec<br>
+                ・log_rotator: {} min<br>
         '''.format(self.__timeout_threshold, self.__monitor_witness_threshold, self.__alert_witness_threshold, self.__log_rotator_witness_threshold)
 
         #health check
@@ -63,7 +67,7 @@ class Witness:
     def get_teams_text(self):
         self.__teams_text = "<br>- - - - - - - - - - - - - - - - - - - - results - - - - - - - - - - - - - - - - - - - -<br>"
         self.__teams_text += self.__chime_connection_message
-        self.__teams_text += self.__sauna_connection_message
+        self.__teams_text += self.__sauna_connection_message + '<br>'
         self.__teams_text += self.__health_check_message
         self.__teams_text += self.__monitor_log_rotation_message
         self.__teams_text += self.__alert_log_rotation_message
