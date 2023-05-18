@@ -15,7 +15,11 @@ class Rotator:
             "..\\hosts_3.json"
         ]
 
-    
+
+    def get_formatted_datetime(self):
+        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
     def check_logs_dir_is(self):
 
         if not os.path.exists(self.__LOGS_DIR):
@@ -46,13 +50,13 @@ class Rotator:
                 log_dirs.remove(oldest_dir)
                 message = app_name + " log folders exceeded 3. " + oldest_dir + " was deleted."
                 with open(app_log_path, "a") as f:
-                    now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+                    now = self.get_formatted_datetime()
                     log = now + "," + message + "\n"
                     f.write(log)
         else:
             message = "No more than 3 " + app_name + " log folders."
             with open(app_log_path, "a") as f:
-                    now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+                    now = self.get_formatted_datetime()
                     log = now + "," + message + "\n"
                     f.write(log)
         print(app_name + " log_rotation END")

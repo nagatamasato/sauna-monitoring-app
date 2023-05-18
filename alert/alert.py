@@ -24,10 +24,13 @@ class Alert:
         self.__LOG_PATH = path_generator.create_path()
 
 
+    def get_formatted_datetime(self):
+        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+
     def alert(self):
 
         print("alert START")
-
         try:
             # Telnetセッションを開始
             tn = Telnet(self.__HOST, self.__PORT, timeout=self.__timeout_threshold)
@@ -38,7 +41,7 @@ class Alert:
             tn.read_until(b"QNET> ")
 
             with open(self.__LOG_PATH, "a") as f:
-                now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+                now = self.get_formatted_datetime()
                 start = now + ",alert START\n"
                 f.write(start)
                 
@@ -50,7 +53,7 @@ class Alert:
                 time.sleep(2)
 
             with open(self.__LOG_PATH, "a") as f:
-                now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+                now = self.get_formatted_datetime()
                 end = now + ",alert END\n"
                 f.write(end)
 
@@ -59,11 +62,10 @@ class Alert:
         
         except:
             with open(self.__LOG_PATH, "a") as f:
-                now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+                now = self.get_formatted_datetime()
                 connection_error = now + ",Connection Error. Can't ring the chime.\n"
                 f.write(connection_error)
                 print("Connection Error")
-        
         print("alert END")
 
 
@@ -86,7 +88,7 @@ class Alert:
                 normal_rooms += room + " "
 
         with open(self.__LOG_PATH, "a") as f:
-            now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+            now = self.get_formatted_datetime()
             if emergency_rooms:
                 log = now + ",The following is Emergency " + emergency_rooms + "\n"
             elif connection_errors:

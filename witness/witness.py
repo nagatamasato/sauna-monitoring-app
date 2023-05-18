@@ -135,7 +135,15 @@ class Witness:
 
 
     def chime_connection(self):
-        last_lines = self.get_last_lines()
+
+        print("-----  chime_connection() START  -----")
+        last_lines = self.get_last_lines(self, self.__alert_log_file_path, 4)
+        log = last_lines[0]
+        print("last_lines", last_lines)
+        print("last_lines[0]", last_lines[0])
+        print("-----  chime_connection() END  -----")
+        if True:
+            self.__chime_connection_message = ""
 
 
     def health_check(self, job_name):
@@ -150,7 +158,7 @@ class Witness:
 
         target_file_path = self.get_log_file_path(job_name)
         last_line = self.get_last_lines(target_file_path, 1)
-        last_updated = last_line[0].split(',')[index].replace('/', '-')
+        last_updated = last_line[0].split(',')[index]
         time_diff = (datetime.now() - datetime.strptime(last_updated, '%Y-%m-%d %H:%M:%S')).total_seconds()
         print("time_diff", time_diff)
         print("type(time_diff)", type(time_diff))
@@ -176,7 +184,9 @@ class Witness:
 
         if os.path.exists(file_path):
             last_line = self.get_last_lines(file_path, 1)
-            date_time = last_line[0].split(',')[0].replace('/', '-')
+            date_time = last_line[0].split(',')[0]
+            print("date_time", date_time)
+            print("type(date_time)", type(date_time))
             time_diff = (datetime.now() - datetime.strptime(date_time, '%Y-%m-%d %H:%M:%S')).total_seconds() / 60
             print("last_line", last_line)
             print("type(last_line)", type(last_line))

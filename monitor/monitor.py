@@ -26,6 +26,10 @@ class Monitor:
         self.__LOG_PATH = path_generator.create_path()
 
 
+    def get_formatted_datetime(self):
+        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
     def get_status(self):
 
         print("get_status START")
@@ -67,7 +71,7 @@ class Monitor:
                 current_status = result
                 print("current_status", current_status)
 
-                now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+                now = self.get_formatted_datetime()
                 print("current time: ", now)
  
                 with open(self.json_path, "r") as jsonf:
