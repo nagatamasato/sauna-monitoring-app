@@ -18,6 +18,18 @@ class Witness:
             "..\\hosts_2.json",
             "..\\hosts_3.json"
         ]
+        self.__timeout_threshold = 1
+        self.__monitor_witness_threshold = 10
+        self.__alert_witness_threshold = 5
+        self.__log_rotator_witness_threshold = 70
+        self.__notes = '''<br>- - - - - - - - - - - - - - - - - - - - notes - - - - - - - - - - - - - - - - - - - -<br>
+        [Connection]: Check for timeout. Timeout threshold is {} sec.<br>
+        [Health check]: Check that each script is working properly.<br>
+        The thresholds are as follows<br>
+        ・monitor_[1-3]: {} sec<br>
+        ・alert: {} sec<br>
+        ・log_rotator: {} min<br>
+        '''.format(self.__timeout_threshold, self.__monitor_witness_threshold, self.__alert_witness_threshold, self.__log_rotator_witness_threshold)
 
         #health check
         self.__health_check_message = ""
@@ -49,7 +61,7 @@ class Witness:
 
 
     def get_teams_text(self):
-        self.__teams_text = self.__chime_connection_message + self.__sauna_connection_message + self.__health_check_message + self.__monitor_log_rotation_message + self.__alert_log_rotation_message
+        self.__teams_text = self.__chime_connection_message + self.__sauna_connection_message + self.__health_check_message + self.__monitor_log_rotation_message + self.__alert_log_rotation_message + self.__notes
     
 
     def get_last_lines(self, file_path, n):
@@ -94,7 +106,7 @@ class Witness:
 
         print("-----  sauna_current_connection check START  -----")
 
-        prefix = "Connection - sauna rooms: "
+        prefix = "[Connection] - sauna rooms: "
         message = "ok<br>"
         connection_errors = ""
 
@@ -121,10 +133,10 @@ class Witness:
         print("-----  health check START  ----- ", job_name)
         if job_name == 'alert':
             index = 0
-            threshold = 5
+            threshold = self.__alert_witness_threshold
         else:
             index = 3
-            threshold = 10
+            threshold = self.__monitor_witness_threshold
 
         target_file_path = self.get_log_file_path(job_name)
         last_line = self.get_last_lines(target_file_path, 1)
@@ -134,7 +146,7 @@ class Witness:
         print("type(time_diff)", type(time_diff))
         print("int(time_diff)", int(time_diff))
 
-        prefix = "Health check - " + job_name + ": "
+        prefix = "[Health check] - " + job_name + ": "
         message = "ok<br>"
         if time_diff > threshold:
             message = "Warning. " + str(int(time_diff)) + " seconds have passed since the last log.<br>"
@@ -163,7 +175,7 @@ class Witness:
             print("type(time_diff)", type(time_diff))
             print("int(time_diff)", int(time_diff))
 
-        prefix = "Health check - log_rotator - " + app_name + ": "
+        prefix = "[Health check] - log_rotator - " + app_name + ": "
 
         message = "ok<br>"
         if os.path.exists(file_path) and time_diff > 70:

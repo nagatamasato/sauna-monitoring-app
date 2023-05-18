@@ -18,6 +18,7 @@ class Alert:
         self.__PASSWORD = "Admin12345"
         self.__ALERT_ON_COMMAND = "#OUTPUT,6,1,1"
         self.__ALERT_OFF_COMMAND = "#OUTPUT,6,1,0"
+        self.__timeout_threshold = 1
 
         path_generator = PathGenerator(self.job_name)
         self.__LOG_PATH = path_generator.create_path()
@@ -29,7 +30,7 @@ class Alert:
 
         try:
             # Telnetセッションを開始
-            tn = Telnet(self.__HOST, self.__PORT, timeout=1)
+            tn = Telnet(self.__HOST, self.__PORT, timeout=self.__timeout_threshold)
             tn.read_until(b"login: ")
             tn.write(self.__USER.encode("UTF-8") + b"\r\n")
             tn.read_until(b"password: ")

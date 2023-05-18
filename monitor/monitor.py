@@ -20,6 +20,7 @@ class Monitor:
         self.__USER = "x1s"
         self.__PASSWORD = "Admin12345"
         self.__GET_STATUS_COMMAND = "?SYSVAR,4,1"
+        self.__timeout_threshold = 1
 
         path_generator = PathGenerator(self.job_name)
         self.__LOG_PATH = path_generator.create_path()
@@ -47,7 +48,7 @@ class Monitor:
                 # start Telnet session
                 tn = ""
                 try:
-                    tn = Telnet(hosts[i]['host'], self.__PORT, timeout=1)
+                    tn = Telnet(hosts[i]['host'], self.__PORT, timeout=self.__timeout_threshold)
                     tn.read_until(b"login: ")
                     tn.write(self.__USER.encode("utf-8") + b"\r\n")
                     tn.read_until(b"password: ")
