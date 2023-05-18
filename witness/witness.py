@@ -63,7 +63,7 @@ class Witness:
     def get_log_file_path(self, job_name):
 
         print("-----  get_log_file_path() START  ----- ", job_name)
-        dir_name_pattern = r"^2[01][0-9]{2}[01][0-9]"        
+        dir_name_pattern = r"^2[01][0-9]{2}[01][0-9]"
         file_name_pattern = r"^2[01][0-9]{2}[01][0-9][0-3][0-9]_" + job_name + "_log.csv"
         log_dirs = []
         if job_name == 'alert':
@@ -125,6 +125,7 @@ class Witness:
         else:
             index = 3
             threshold = 10
+
         target_file_path = self.get_log_file_path(job_name)
         last_line = self.get_last_lines(target_file_path, 1)
         last_updated = last_line[0].split(',')[index].replace('/', '-')
@@ -137,7 +138,7 @@ class Witness:
         message = "ok<br>"
         if time_diff > threshold:
             message = "Warning. " + str(int(time_diff)) + " seconds have passed since the last log.<br>"
-            
+
         self.__health_check_message += prefix + message
         print("-----  health check END  ----- ", job_name)
 
