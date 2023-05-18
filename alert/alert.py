@@ -29,7 +29,7 @@ class Alert:
 
         try:
             # Telnetセッションを開始
-            tn = Telnet(self.__HOST, self.__PORT, timeout=5)
+            tn = Telnet(self.__HOST, self.__PORT, timeout=1)
             tn.read_until(b"login: ")
             tn.write(self.__USER.encode("UTF-8") + b"\r\n")
             tn.read_until(b"password: ")

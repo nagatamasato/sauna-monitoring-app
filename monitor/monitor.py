@@ -47,7 +47,7 @@ class Monitor:
                 # start Telnet session
                 tn = ""
                 try:
-                    tn = Telnet(hosts[i]['host'], self.__PORT, timeout=5)
+                    tn = Telnet(hosts[i]['host'], self.__PORT, timeout=1)
                     tn.read_until(b"login: ")
                     tn.write(self.__USER.encode("utf-8") + b"\r\n")
                     tn.read_until(b"password: ")
