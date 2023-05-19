@@ -14,6 +14,7 @@ witness.log_rotation('alert')
 
 # check connection error
 witness.sauna_current_connection()
+witness.sauna_error_count()
 
 # send report
 witness.report()

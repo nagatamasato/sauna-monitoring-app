@@ -24,24 +24,31 @@ class Witness:
         self.__log_rotator_witness_threshold = 70
         self.__notes = '''<br>- - - - - - - - - - - - - - - - - - - - notes - - - - - - - - - - - - - - - - - - - -<br>
         [Connection]:<br>
-            Check if a timeout has occurred. Timeout threshold is {} sec.<br>
+            Check if a timeout has occurred. Timeout threshold is {} second.<br>
         <br>
         [Health check]:<br>
             Verify that the script is working properly<br>
             by checking if the log update date/time is updated within the threshold.<br>
             The thresholds are as follows<br>
-                ・monitor_[1-3]: {} sec<br>
-                ・alert: {} sec<br>
-                ・log_rotator: {} min<br>
-        '''.format(self.__timeout_threshold, self.__monitor_witness_threshold, self.__alert_witness_threshold, self.__log_rotator_witness_threshold)
+                ・monitor_[1-3]: {} seconds<br>
+                ・alert: {} seconds<br>
+                ・log_rotator: {} minutes<br>
+        '''.format(
+            self.__timeout_threshold,
+            self.__monitor_witness_threshold,
+            self.__alert_witness_threshold,
+            self.__log_rotator_witness_threshold
+        )
 
         #health check
         self.__health_check_message = ""
         self.__monitor_log_dir = "..\\monitor\\logs"
         self.__alert_log_dir = "..\\alert\\logs"
-        self.__monitor_1_log_file_path = self.get_log_file_path('monitor_1')
-        self.__monitor_2_log_file_path = self.get_log_file_path('monitor_2')
-        self.__monitor_3_log_file_path = self.get_log_file_path('monitor_3')
+        self.__monitor_log_file_paths = {
+            'monitor_1': self.get_log_file_path('monitor_1'),
+            'monitor_2': self.get_log_file_path('monitor_2'),
+            'monitor_3': self.get_log_file_path('monitor_3')
+        }
         self.__alert_log_file_path = self.get_log_file_path('alert')
 
         # log rotation - monitor
@@ -53,7 +60,8 @@ class Witness:
         self.__alert_log_rotation_message = ""
 
         # connection
-        self.__sauna_connection_message = ""
+        self.__sauna_current_connection_message = ""
+        self.__sauna_error_count_message = ""
         self.__chime_connection_message = ""
 
     def report(self):
@@ -66,12 +74,13 @@ class Witness:
 
     def get_teams_text(self):
         self.__teams_text = "<br>- - - - - - - - - - - - - - - - - - - - results - - - - - - - - - - - - - - - - - - - -<br>"
-        self.__teams_text += self.__chime_connection_message
-        self.__teams_text += self.__sauna_connection_message + '<br>'
-        self.__teams_text += self.__health_check_message
-        self.__teams_text += self.__monitor_log_rotation_message
-        self.__teams_text += self.__alert_log_rotation_message
-        self.__teams_text += self.__notes
+        self.__teams_text += self.__chime_connection_message\
+            + self.__sauna_current_connection_message + '<br>'\
+            + self.__sauna_error_count_message + '<br>'\
+            + self.__health_check_message\
+            + self.__monitor_log_rotation_message\
+            + self.__alert_log_rotation_message\
+            + self.__notes
     
 
     def get_last_lines(self, file_path, n):
@@ -116,34 +125,82 @@ class Witness:
 
         print("-----  sauna_current_connection check START  -----")
 
-        prefix = "[Connection] - sauna rooms: "
+        prefix = "[Connection] - Current connection status of sauna rooms: "
         message = "ok<br>"
-        connection_errors = ""
+        connection_errors = []
+        suffix = ", "
 
         for i in range(len(self.__HOSTS_FILES)):
             with open(self.__HOSTS_FILES[i], "r") as f:
                 hosts = json.load(f)
             for room in hosts:
                 if hosts[room]['status'] == "Connection Error":
-                    connection_errors += room + "<br>"
+                    connection_errors.append(room)
         if connection_errors:
-            message = "Warning. Connection Error detected in the next sauna room.<br>" + connection_errors
+            message = "Warning. Connection Error detected in the next sauna room.<br>"
+            for j in range(len(connection_errors)):
+                if j == len(connection_errors) - 1:
+                    suffix = ""
+                message += connection_errors[j] + suffix
         print("Connection Errors", connection_errors)
-        self.__sauna_connection_message = prefix + message
-
+        self.__sauna_current_connection_message = prefix + message + '<br>'
         print("-----  sauna_current_connection check END  -----")
 
 
-    def chime_connection(self):
+    def sauna_error_count(self):
 
-        print("-----  chime_connection() START  -----")
+        print("-----  sauna_error_count() START  -----")
+        count = {}
+        for monitor_name in self.__monitor_log_file_paths:
+            print("monitor_name", monitor_name)
+            if monitor_name == 'monitor_1':
+                n = 3 * 10 * 5
+            else:
+                n = 4 * 10 * 5
+            last_lines = self.get_last_lines(self.__monitor_log_file_paths[monitor_name], n)
+            print("last_lines)", last_lines)
+            for i in range(len(last_lines)):
+                print("last_lines[i]", last_lines[i])
+                line_list = last_lines[i].split(',')
+                print("line_list", line_list)
+                print("type(line_list)", type(line_list))
+                count.setdefault(line_list[0], 0)
+                if line_list[1] == 'Connection Error':
+                    count[line_list[0]] += 1
+                    print("line_list", line_list)
+                    print("count[line_list[0]]", count[line_list[0]])
+                    print("count", count)
+        prefix = '[Connection]: Number of "Connection Errors" in sauna rooms for approximately 5 minutes is as follows<br>'
+        message = ""
+        suffix = ", "
+        count_sorted = sorted(count.items())
+        print("count_sorted", count_sorted)
+        print("type(count_sorted)", type(count_sorted))
+        for i in range(len(count_sorted)):
+            print("count_sorted[i]", count_sorted[i])
+            print("type(count_sorted[i])", type(count_sorted[i]))
+            print("count_sorted[i][0]", count_sorted[i][0])
+            print("type(count_sorted[i][0])", type(count_sorted[i][0]))
+            print("count_sorted[i][1]", count_sorted[i][1])
+            print("type(count_sorted[i][1])", type(count_sorted[i][1]))
+            if i == len(count_sorted) - 1:
+                suffix = ""
+            message += count_sorted[i][0] + ": " + str(count_sorted[i][1]) + suffix
+        self.__sauna_error_count_message = prefix + message + '<br>'
+        print(self.__sauna_error_count_message)
+        print("-----  sauna_error_count() END  -----")
+
+
+    def chime_error_count(self):
+
+        print("-----  chime_error_count() START  -----")
         last_lines = self.get_last_lines(self, self.__alert_log_file_path, 4)
         log = last_lines[0]
         print("last_lines", last_lines)
         print("last_lines[0]", last_lines[0])
-        print("-----  chime_connection() END  -----")
         if True:
             self.__chime_connection_message = ""
+        print("-----  chime_error_count() END  -----")
 
 
     def health_check(self, job_name):
