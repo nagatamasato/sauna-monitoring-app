@@ -1,7 +1,7 @@
 from datetime import datetime
 import json
 import os
-import pymsteams
+import requests
 import collections
 import re
 
@@ -10,8 +10,9 @@ class Witness:
 
     def __init__(self):
         # Teams Webhook
-        self.__TEAMS_URL = "https://x1studiocojp.webhook.office.com/webhookb2/2359c523-6ff7-4e43-9cce-b924c34b9a1b@3e594155-a0af-40ef-a8f2-dc8ce23f3844/IncomingWebhook/5798f01fbb53408ea38a9651139d18ea/4eb77287-1789-4810-b206-e1c3bd304107"
+        self.__WEBHOOK_URL = "https://x1studiocojp.webhook.office.com/webhookb2/2359c523-6ff7-4e43-9cce-b924c34b9a1b@3e594155-a0af-40ef-a8f2-dc8ce23f3844/IncomingWebhook/5798f01fbb53408ea38a9651139d18ea/4eb77287-1789-4810-b206-e1c3bd304107"
         self.__teams_title = "TEST on Development Environment"
+        self.__mention = ""
         self.__teams_text = ""
         self.__HOSTS_FILES = [
             "..\\hosts_1.json",
@@ -22,17 +23,18 @@ class Witness:
         self.__monitor_witness_threshold = 10
         self.__alert_witness_threshold = 5
         self.__log_rotator_witness_threshold = 70
-        self.__notes = '''<br>- - - - - - - - - - - - - - - - - - - - notes - - - - - - - - - - - - - - - - - - - -<br>
-        [Connection]:<br>
-            Check if a timeout has occurred. Timeout threshold is {} second.<br>
-        <br>
-        [Health check]:<br>
-            Verify that the script is working properly<br>
-            by checking if the log update date/time is updated within the threshold.<br>
-            The thresholds are as follows<br>
-                ・monitor_[1-3]: {} seconds<br>
-                ・alert: {} seconds<br>
-                ・log_rotator: {} minutes<br>
+        self.__notes = '''
+        - - - - - - - - - - - - - - - - - - - - notes - - - - - - - - - - - - - - - - - - - -
+        [Connection]:
+            Check if a timeout has occurred. Timeout threshold is {} second.
+
+        [Health check]:
+            Verify that the script is working properly
+            by checking if the log update date/time is updated within the threshold.
+            The thresholds are as follows
+                ・monitor_[1-3]: {} seconds
+                ・alert: {} seconds
+                ・log_rotator: {} minutes
         '''.format(
             self.__timeout_threshold,
             self.__monitor_witness_threshold,
@@ -65,31 +67,58 @@ class Witness:
         self.__chime_connection_message = ""
 
     def report(self):
-        teams_message = pymsteams.connectorcard(self.__TEAMS_URL)
-        teams_message.title(self.__teams_title)
+
         self.get_teams_text()
-        teams_message.text(self.__teams_text)
-        teams_message.send()
+        print("self.__teams_text", self.__teams_text)
+        # アダプティブカードのJSONを定義
+        payload={"text": self.__teams_text}
+        # POSTリクエストを送信
+        response = requests.post("https://hooks.slack.com/services/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", data=json.dumps(payload))
+
+        # 応答を表示
+        print(response.status_code)
+                # teams_message = pymsteams.connectorcard(self.__TEAMS_URL)
+                # teams_message.title(self.__teams_title)
+                # self.get_teams_text()
+                # teams_message.text(self.__teams_text)
+                # teams_message.send()
 
 
     def get_teams_text(self):
-        self.__teams_text = "<br>- - - - - - - - - - - - - - - - - - - - results - - - - - - - - - - - - - - - - - - - -<br>"
-        self.__teams_text += self.__chime_connection_message\
-            + self.__sauna_current_connection_message + '<br>'\
-            + self.__sauna_error_count_message + '<br>'\
-            + self.__health_check_message\
-            + self.__monitor_log_rotation_message\
-            + self.__alert_log_rotation_message\
-            + self.__notes
+
+        self.__mention = '''<@U058SRF439C>
+        '''
+        self.__teams_text = self.__mention\
+            + '''- - - - - - - - - - - - - - - - - - - - results - - - - - - - - - - - - - - - - - - - -
+            '''\
+            + '''{}
+            
+            '''.format(self.__chime_connection_message)\
+            + '''{}
+            
+            '''.format(self.__sauna_current_connection_message)\
+            + '''{}
+
+            '''.format(self.__sauna_error_count_message)\
+            + '''{}
+            '''.format(self.__health_check_message)\
+            + '''{}
+            '''.format(self.__monitor_log_rotation_message)\
+            + '''{}
+
+            '''.format(self.__alert_log_rotation_message)\
+            + '''{}'''.format(self.__notes)
     
 
     def get_last_lines(self, file_path, n):
+
         try:
             with open(file_path, 'r') as f:
                 return collections.deque(f, n)
         except FileNotFoundError:
             print(f"{file_path} not found.")
             return []
+
 
     def get_log_file_path(self, job_name):
 
@@ -126,7 +155,8 @@ class Witness:
         print("-----  sauna_current_connection check START  -----")
 
         prefix = "[Connection] - Current connection status of sauna rooms: "
-        message = "ok<br>"
+        message = '''ok
+        '''
         connection_errors = []
         suffix = ", "
 
@@ -137,13 +167,14 @@ class Witness:
                 if hosts[room]['status'] == "Connection Error":
                     connection_errors.append(room)
         if connection_errors:
-            message = "Warning. Connection Error detected in the next sauna room.<br>"
+            message = '''Warning. Connection Error detected in the next sauna room.
+            '''
             for j in range(len(connection_errors)):
                 if j == len(connection_errors) - 1:
                     suffix = ""
                 message += connection_errors[j] + suffix
         print("Connection Errors", connection_errors)
-        self.__sauna_current_connection_message = prefix + message + '<br>'
+        self.__sauna_current_connection_message = prefix + message
         print("-----  sauna_current_connection check END  -----")
 
 
@@ -170,7 +201,8 @@ class Witness:
                     print("line_list", line_list)
                     print("count[line_list[0]]", count[line_list[0]])
                     print("count", count)
-        prefix = '[Connection]: Number of "Connection Errors" in sauna rooms for approximately 5 minutes is as follows<br>'
+        prefix = '''[Connection]: Number of "Connection Errors" in sauna rooms for approximately 5 minutes is as follows
+        '''
         message = ""
         suffix = ", "
         count_sorted = sorted(count.items())
@@ -186,7 +218,7 @@ class Witness:
             if i == len(count_sorted) - 1:
                 suffix = ""
             message += count_sorted[i][0] + ": " + str(count_sorted[i][1]) + suffix
-        self.__sauna_error_count_message = prefix + message + '<br>'
+        self.__sauna_error_count_message = prefix + message
         print(self.__sauna_error_count_message)
         print("-----  sauna_error_count() END  -----")
 
@@ -222,11 +254,13 @@ class Witness:
         print("int(time_diff)", int(time_diff))
 
         prefix = "[Health check] - " + job_name + ": "
-        message = "ok<br>"
+        message = "ok"
         if time_diff > threshold:
-            message = "Warning. " + str(int(time_diff)) + " seconds have passed since the last log.<br>"
+            message = '''Warning. {} seconds have passed since the last log.\
+            '''.format(str(int(time_diff)))
 
-        self.__health_check_message += prefix + message
+        self.__health_check_message += '''{}{}
+        '''.format(prefix, message)
         print("-----  health check END  ----- ", job_name)
 
 
@@ -254,9 +288,10 @@ class Witness:
 
         prefix = "[Health check] - log_rotator - " + app_name + ": "
 
-        message = "ok<br>"
+        message = "ok"
         if os.path.exists(file_path) and time_diff > 70:
-            message = "Warning. " + str(int(time_diff)) + " minutes have passed since the last log rotation. Log rotation is executed once every 60 minutes.<br>"
+            message = '''Warning. {} minutes have passed since the last log rotation. Log rotation is executed once every 60 minutes.\
+            '''.format(str(int(time_diff)))
 
         if app_name == 'monitor':
             self.__monitor_log_rotation_message = prefix + message
