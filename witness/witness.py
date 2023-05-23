@@ -1,7 +1,7 @@
 from datetime import datetime
 import json
 import os
-import pymsteams
+import requests
 import collections
 import re
 
@@ -10,8 +10,8 @@ class Witness:
 
     def __init__(self):
         # Teams Webhook
-        self.__TEAMS_URL = "https://x1studiocojp.webhook.office.com/webhookb2/2359c523-6ff7-4e43-9cce-b924c34b9a1b@3e594155-a0af-40ef-a8f2-dc8ce23f3844/IncomingWebhook/5798f01fbb53408ea38a9651139d18ea/4eb77287-1789-4810-b206-e1c3bd304107"
-        self.__teams_title = "TEST on Development Environment"
+        self.__WEBHOOK_URL = "https://x1studiocojp.webhook.office.com/webhookb2/2359c523-6ff7-4e43-9cce-b924c34b9a1b@3e594155-a0af-40ef-a8f2-dc8ce23f3844/IncomingWebhook/5798f01fbb53408ea38a9651139d18ea/4eb77287-1789-4810-b206-e1c3bd304107"
+        self.__mention = False
         self.__teams_text = ""
         self.__HOSTS_FILES = [
             "..\\hosts_1.json",
@@ -22,17 +22,17 @@ class Witness:
         self.__monitor_witness_threshold = 10
         self.__alert_witness_threshold = 5
         self.__log_rotator_witness_threshold = 70
-        self.__notes = '''<br>- - - - - - - - - - - - - - - - - - - - notes - - - - - - - - - - - - - - - - - - - -<br>
-        [Connection]:<br>
-            Check if a timeout has occurred. Timeout threshold is {} second.<br>
-        <br>
-        [Health check]:<br>
-            Verify that the script is working properly<br>
-            by checking if the log update date/time is updated within the threshold.<br>
-            The thresholds are as follows<br>
-                ・monitor_[1-3]: {} seconds<br>
-                ・alert: {} seconds<br>
-                ・log_rotator: {} minutes<br>
+        self.__notes = '''\n\n= = = = = = = = = = = = = = = = = = = = = = notes = = = = = = = = = = = = = = = = = = = = = =\n\n
+        [Connection]:\n\n
+            Check if a timeout has occurred. Timeout threshold is {} second.\n\n
+        \n\n
+        [Health check]:\n\n
+            Verify that the script is working properly\n\n
+            by checking if the log update date/time is updated within the threshold.\n\n
+            The thresholds are as follows\n\n
+                ・monitor_[1-3]: {} seconds\n\n
+                ・alert: {} seconds\n\n
+                ・log_rotator: {} minutes\n\n
         '''.format(
             self.__timeout_threshold,
             self.__monitor_witness_threshold,
@@ -65,18 +65,101 @@ class Witness:
         self.__chime_connection_message = ""
 
     def report(self):
-        teams_message = pymsteams.connectorcard(self.__TEAMS_URL)
-        teams_message.title(self.__teams_title)
+
         self.get_teams_text()
-        teams_message.text(self.__teams_text)
-        teams_message.send()
+        # アダプティブカードのJSONを定義
+        mention_card = {
+            "type": "message",
+            "attachments": [
+                {
+                "contentType": "application/vnd.microsoft.card.adaptive",
+                "content": {
+                    "type": "AdaptiveCard",
+                    "body": [
+                        {
+                            "type": "TextBlock",
+                            "size": "Medium",
+                            "weight": "Bolder",
+                            "text": "Sample Adaptive Card with User Mention"
+                        },
+                        {
+                            "type": "TextBlock",
+                            "text": "<at>Masato Nagata</at>\n\n\
+                                This is TEST on Development Environment\n\n"\
+                                    + self.__teams_text
+                        }
+                    ],
+                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                    "version": "1.0",
+                    "msteams": {
+                        "width": "Full",
+                        "entities": [
+                            {
+                                "type": "mention",
+                                "text": "<at>Masato Nagata</at>",
+                                "mentioned": {
+                                "id": "nagata-m@x1studio.co.jp",
+                                "name": "Masato Nagata"
+                                }
+                            }
+                        ]
+                    }
+                }
+            }]
+        }
+
+        not_mention_card = {
+            "type": "message",
+            "attachments": [
+                {
+                "contentType": "application/vnd.microsoft.card.adaptive",
+                "content": {
+                    "type": "AdaptiveCard",
+                    "body": [
+                        {
+                            "type": "TextBlock",
+                            "size": "Medium",
+                            "weight": "Bolder",
+                            "text": "Sample Adaptive Card with User Mention"
+                        },
+                        {
+                            "type": "TextBlock",
+                            "text": "This is TEST on Development Environment\n\n"\
+                                    + self.__teams_text
+                        }
+                    ],
+                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                    "version": "1.0",
+                    "msteams": {
+                        "width": "Full"
+                    }
+                }
+            }]
+        }
+
+        # ヘッダーとペイロードを定義
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        # mention
+        if self.__mention:
+            card = mention_card
+        else:
+            card = not_mention_card
+
+        # POSTリクエストを送信
+        response = requests.post(self.__WEBHOOK_URL, headers=headers, data=json.dumps(card))
+
+        # 応答を表示
+        print(response.status_code)
 
 
     def get_teams_text(self):
-        self.__teams_text = "<br>- - - - - - - - - - - - - - - - - - - - results - - - - - - - - - - - - - - - - - - - -<br>"
+        self.__teams_text = "\n\n= = = = = = = = = = = = = = = = = = = = = = results = = = = = = = = = = = = = = = = = = = = = =\n\n"
         self.__teams_text += self.__chime_connection_message\
-            + self.__sauna_current_connection_message + '<br>'\
-            + self.__sauna_error_count_message + '<br>'\
+            + self.__sauna_current_connection_message + '\n\n'\
+            + self.__sauna_error_count_message + '\n\n'\
             + self.__health_check_message\
             + self.__monitor_log_rotation_message\
             + self.__alert_log_rotation_message\
@@ -126,7 +209,7 @@ class Witness:
         print("-----  sauna_current_connection check START  -----")
 
         prefix = "[Connection] - Current connection status of sauna rooms: "
-        message = "ok<br>"
+        message = "ok\n\n"
         connection_errors = []
         suffix = ", "
 
@@ -137,13 +220,13 @@ class Witness:
                 if hosts[room]['status'] == "Connection Error":
                     connection_errors.append(room)
         if connection_errors:
-            message = "Warning. Connection Error detected in the next sauna room.<br>"
+            message = "Warning. Connection Error detected in the next sauna room.\n\n"
             for j in range(len(connection_errors)):
                 if j == len(connection_errors) - 1:
                     suffix = ""
                 message += connection_errors[j] + suffix
         print("Connection Errors", connection_errors)
-        self.__sauna_current_connection_message = prefix + message + '<br>'
+        self.__sauna_current_connection_message = prefix + message + '\n\n'
         print("-----  sauna_current_connection check END  -----")
 
 
@@ -170,7 +253,7 @@ class Witness:
                     print("line_list", line_list)
                     print("count[line_list[0]]", count[line_list[0]])
                     print("count", count)
-        prefix = '[Connection]: Number of "Connection Errors" in sauna rooms for approximately 5 minutes is as follows<br>'
+        prefix = '[Connection]: Number of "Connection Errors" in sauna rooms for approximately 5 minutes is as follows\n\n'
         message = ""
         suffix = ", "
         count_sorted = sorted(count.items())
@@ -186,7 +269,7 @@ class Witness:
             if i == len(count_sorted) - 1:
                 suffix = ""
             message += count_sorted[i][0] + ": " + str(count_sorted[i][1]) + suffix
-        self.__sauna_error_count_message = prefix + message + '<br>'
+        self.__sauna_error_count_message = prefix + message + '\n\n'
         print(self.__sauna_error_count_message)
         print("-----  sauna_error_count() END  -----")
 
@@ -222,9 +305,9 @@ class Witness:
         print("int(time_diff)", int(time_diff))
 
         prefix = "[Health check] - " + job_name + ": "
-        message = "ok<br>"
+        message = "ok\n\n"
         if time_diff > threshold:
-            message = "Warning. " + str(int(time_diff)) + " seconds have passed since the last log.<br>"
+            message = "Warning. " + str(int(time_diff)) + " seconds have passed since the last log.\n\n"
 
         self.__health_check_message += prefix + message
         print("-----  health check END  ----- ", job_name)
@@ -254,9 +337,9 @@ class Witness:
 
         prefix = "[Health check] - log_rotator - " + app_name + ": "
 
-        message = "ok<br>"
+        message = "ok\n\n"
         if os.path.exists(file_path) and time_diff > 70:
-            message = "Warning. " + str(int(time_diff)) + " minutes have passed since the last log rotation. Log rotation is executed once every 60 minutes.<br>"
+            message = "Warning. " + str(int(time_diff)) + " minutes have passed since the last log rotation. Log rotation is executed once every 60 minutes.\n\n"
 
         if app_name == 'monitor':
             self.__monitor_log_rotation_message = prefix + message
