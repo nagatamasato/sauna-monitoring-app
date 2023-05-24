@@ -1,7 +1,8 @@
 from telnetlib import Telnet
 from datetime import datetime
-import os
 import json
+import os
+import re
 import time
 import sys
 sys.path.append('..\\common')
@@ -20,6 +21,7 @@ class Monitor:
         self.__USER = "x1s"
         self.__PASSWORD = "Admin12345"
         self.__GET_STATUS_COMMAND = "?SYSVAR,4,1"
+        self.__pattern = r"^~SYSVAR,4,1,[01]"
         self.__timeout_threshold = 1
 
         path_generator = PathGenerator(self.job_name)
@@ -60,13 +62,29 @@ class Monitor:
                     tn.read_until(b"QNET> ")
                     tn.write(self.__GET_STATUS_COMMAND.encode("utf-8") + b"\r\n")
                     result = tn.read_until(b"QNET> ")
+                    print("result_1", result)
                     result = result.decode("utf-8")
+                    print("result_2", result)
                     result = result.replace("QNET> ", "")
+                    print("result_3", result)
                     result = result.replace("\n", "")
-                    result = result.splitlines()[0].split(',')[3]
+                    print("result_4", result)
+                    result = result.splitlines()
+                    print("result_5", result)
+                    target = ""
+                    for j in range(len(result)):
+                        if re.search(self.__pattern, result[j]):
+                            target = result[j]
+                            print("target", j, target)
+                    result = target
+                    if target:
+                        result = result.split(',')
+                        print("result_6", result)
+                        result = result[3]
+                        print("result_7", result)
 
                 except:
-                    result = "Connection Error"
+                    result = "Failed to get status."
 
                 current_status = result
                 print("current_status", current_status)
