@@ -1,6 +1,7 @@
 from datetime import datetime
 import json
 import os
+import pymsteams
 import requests
 import collections
 import re
@@ -12,29 +13,25 @@ class Witness:
         # Teams Webhook
         self.__WEBHOOK_URL = "https://x1studiocojp.webhook.office.com/webhookb2/2359c523-6ff7-4e43-9cce-b924c34b9a1b@3e594155-a0af-40ef-a8f2-dc8ce23f3844/IncomingWebhook/5798f01fbb53408ea38a9651139d18ea/4eb77287-1789-4810-b206-e1c3bd304107"
         self.__mention = False
+        self.__teams_title = "TEST on Development Environment"
         self.__teams_text = ""
         self.__HOSTS_FILES = [
             "..\\hosts_1.json",
             "..\\hosts_2.json",
             "..\\hosts_3.json"
         ]
-        self.__timeout_threshold = 1
         self.__monitor_witness_threshold = 10
         self.__alert_witness_threshold = 5
         self.__log_rotator_witness_threshold = 70
-        self.__notes = '''\n\n= = = = = = = = = = = = = = = = = = = = = = notes = = = = = = = = = = = = = = = = = = = = = =\n\n
-        [Connection]:\n\n
-            Check if a timeout has occurred. Timeout threshold is {} second.\n\n
-        \n\n
-        [Health check]:\n\n
-            Verify that the script is working properly\n\n
-            by checking if the log update date/time is updated within the threshold.\n\n
-            The thresholds are as follows\n\n
-                ・monitor_[1-3]: {} seconds\n\n
-                ・alert: {} seconds\n\n
-                ・log_rotator: {} minutes\n\n
+        self.__notes = '''<br>- - - - - - - - - - - - - - - - - - - - notes - - - - - - - - - - - - - - - - - - - -<br>
+        [Health check]:<br>
+            Verify that the script is working properly<br>
+            by checking if the log update date/time is updated within the threshold.<br>
+            The thresholds are as follows<br>
+                ・monitor_[1-3]: {} seconds<br>
+                ・alert: {} seconds<br>
+                ・log_rotator: {} minutes<br>
         '''.format(
-            self.__timeout_threshold,
             self.__monitor_witness_threshold,
             self.__alert_witness_threshold,
             self.__log_rotator_witness_threshold
@@ -64,11 +61,29 @@ class Witness:
         self.__sauna_error_count_message = ""
         self.__chime_connection_message = ""
 
+
     def report(self):
 
+        teams_message = pymsteams.connectorcard(self.__WEBHOOK_URL)
+        teams_message.title(self.__teams_title)
         self.get_teams_text()
+        teams_message.text(self.__teams_text)
+        teams_message.send()
+
+        self.mention_condition()
+        if self.__mention:
+            self.mention()
+
+
+    def mention_condition(self):
+        if False:
+            self.__mention = True
+        
+
+    def mention(self):
+
         # アダプティブカードのJSONを定義
-        mention_card = {
+        card = {
             "type": "message",
             "attachments": [
                 {
@@ -78,15 +93,17 @@ class Witness:
                     "body": [
                         {
                             "type": "TextBlock",
-                            "size": "Medium",
-                            "weight": "Bolder",
-                            "text": "Sample Adaptive Card with User Mention"
+                            "text": "<at>Masato Nagata</at>\n\n"
                         },
                         {
                             "type": "TextBlock",
-                            "text": "<at>Masato Nagata</at>\n\n\
-                                This is TEST on Development Environment\n\n"\
-                                    + self.__teams_text
+                            "size": "Medium",
+                            "weight": "Bolder",
+                            "text": "TEST on Development Environment\n\n"
+                        },
+                        {
+                            "type": "TextBlock",
+                            "text": "Check the Witness Report"
                         }
                     ],
                     "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
@@ -108,45 +125,10 @@ class Witness:
             }]
         }
 
-        not_mention_card = {
-            "type": "message",
-            "attachments": [
-                {
-                "contentType": "application/vnd.microsoft.card.adaptive",
-                "content": {
-                    "type": "AdaptiveCard",
-                    "body": [
-                        {
-                            "type": "TextBlock",
-                            "size": "Medium",
-                            "weight": "Bolder",
-                            "text": "Sample Adaptive Card with User Mention"
-                        },
-                        {
-                            "type": "TextBlock",
-                            "text": "This is TEST on Development Environment\n\n"\
-                                    + self.__teams_text
-                        }
-                    ],
-                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-                    "version": "1.0",
-                    "msteams": {
-                        "width": "Full"
-                    }
-                }
-            }]
-        }
-
         # ヘッダーとペイロードを定義
         headers = {
             'Content-Type': 'application/json'
         }
-
-        # mention
-        if self.__mention:
-            card = mention_card
-        else:
-            card = not_mention_card
 
         # POSTリクエストを送信
         response = requests.post(self.__WEBHOOK_URL, headers=headers, data=json.dumps(card))
@@ -156,10 +138,9 @@ class Witness:
 
 
     def get_teams_text(self):
-        self.__teams_text = "\n\n= = = = = = = = = = = = = = = = = = = = = = results = = = = = = = = = = = = = = = = = = = = = =\n\n"
+        self.__teams_text = "<br>- - - - - - - - - - - - - - - - - - - - results - - - - - - - - - - - - - - - - - - - -<br>"
         self.__teams_text += self.__chime_connection_message\
-            + self.__sauna_current_connection_message + '\n\n'\
-            + self.__sauna_error_count_message + '\n\n'\
+            + self.__sauna_error_count_message + '<br>'\
             + self.__health_check_message\
             + self.__monitor_log_rotation_message\
             + self.__alert_log_rotation_message\
@@ -204,30 +185,30 @@ class Witness:
         return target_file_path
 
 
-    def sauna_current_connection(self):
+    # def sauna_current_connection(self):
 
-        print("-----  sauna_current_connection check START  -----")
+    #     print("-----  sauna_current_connection check START  -----")
 
-        prefix = "[Connection] - Current connection status of sauna rooms: "
-        message = "ok\n\n"
-        connection_errors = []
-        suffix = ", "
+    #     prefix = "[Condition] - Current connection status of sauna rooms: "
+    #     message = "ok<br>"
+    #     failures = []
+    #     suffix = ", "
 
-        for i in range(len(self.__HOSTS_FILES)):
-            with open(self.__HOSTS_FILES[i], "r") as f:
-                hosts = json.load(f)
-            for room in hosts:
-                if hosts[room]['status'] == "Failure to get status":
-                    connection_errors.append(room)
-        if connection_errors:
-            message = "Warning. Failure to get status detected in the next sauna room.\n\n"
-            for j in range(len(connection_errors)):
-                if j == len(connection_errors) - 1:
-                    suffix = ""
-                message += connection_errors[j] + suffix
-        print("Failure to get status", connection_errors)
-        self.__sauna_current_connection_message = prefix + message + '\n\n'
-        print("-----  sauna_current_connection check END  -----")
+    #     for i in range(len(self.__HOSTS_FILES)):
+    #         with open(self.__HOSTS_FILES[i], "r") as f:
+    #             hosts = json.load(f)
+    #         for room in hosts:
+    #             if hosts[room]['status'] == "Failure to get status":
+    #                 failures.append(room)
+    #     if failures:
+    #         message = 'Warning. "Failure to get status" detected in the next sauna room.<br>'
+    #         for j in range(len(failures)):
+    #             if j == len(failures) - 1:
+    #                 suffix = ""
+    #             message += failures[j] + suffix
+    #     print("failures", failures)
+    #     self.__sauna_current_connection_message = prefix + message + '<br>'
+    #     print("-----  sauna_current_connection check END  -----")
 
 
     def sauna_error_count(self):
@@ -241,19 +222,34 @@ class Witness:
             else:
                 n = 4 * 10 * 5
             last_lines = self.get_last_lines(self.__monitor_log_file_paths[monitor_name], n)
+            print("last_lines - - - - - - - - - - START - - - - - - - - - -")
             print("last_lines)", last_lines)
+            print("type(last_lines)", type(last_lines))
+            print("len(last_lines)", len(last_lines))
+            print("last_lines[0]", last_lines[0])
+            print("type(last_lines[0])", type(last_lines[0]))
+            print("len(last_lines[0])", len(last_lines[0]))
+            print("last_lines[0].split(',')", last_lines[0].split(','))
+            print("type(last_lines[0].split(','))", type(last_lines[0].split(',')))
+            print("len(last_lines[0].split(','))", len(last_lines[0].split(',')))
+            print("last_lines - - - - - - - - - - END - - - - - - - - - -")
             for i in range(len(last_lines)):
-                print("last_lines[i]", last_lines[i])
+                print(i, "---------   START   ---------")
+                print("last_lines", i, last_lines[i])
                 line_list = last_lines[i].split(',')
-                print("line_list", line_list)
+                print("line_list", i, line_list)
                 print("type(line_list)", type(line_list))
+                print("line_list[0]", line_list[0])
+                print("line_list[1]", line_list[1])
                 count.setdefault(line_list[0], 0)
                 if line_list[1] == 'Failure to get status':
                     count[line_list[0]] += 1
                     print("line_list", line_list)
                     print("count[line_list[0]]", count[line_list[0]])
                     print("count", count)
-        prefix = '[Connection]: Number of "Failure to get status" in sauna rooms for approximately 5 minutes is as follows\n\n'
+                print(i, "---------   END   ---------")
+
+        prefix = '[Status acquisition]: Number of "Failure to get status" in sauna rooms for 5 minutes is as follows\n\n'
         message = ""
         suffix = ", "
         count_sorted = sorted(count.items())
@@ -269,7 +265,7 @@ class Witness:
             if i == len(count_sorted) - 1:
                 suffix = ""
             message += count_sorted[i][0] + ": " + str(count_sorted[i][1]) + suffix
-        self.__sauna_error_count_message = prefix + message + '\n\n'
+        self.__sauna_error_count_message = prefix + message + '<br>'
         print(self.__sauna_error_count_message)
         print("-----  sauna_error_count() END  -----")
 
@@ -298,6 +294,7 @@ class Witness:
 
         target_file_path = self.get_log_file_path(job_name)
         last_line = self.get_last_lines(target_file_path, 1)
+        print("last_line", last_line)
         last_updated = last_line[0].split(',')[index]
         time_diff = (datetime.now() - datetime.strptime(last_updated, '%Y-%m-%d %H:%M:%S')).total_seconds()
         print("time_diff", time_diff)
@@ -305,9 +302,9 @@ class Witness:
         print("int(time_diff)", int(time_diff))
 
         prefix = "[Health check] - " + job_name + ": "
-        message = "ok\n\n"
+        message = "ok<br>"
         if time_diff > threshold:
-            message = "Warning. " + str(int(time_diff)) + " seconds have passed since the last log.\n\n"
+            message = "Warning. " + str(int(time_diff)) + " seconds have passed since the last log.<br>"
 
         self.__health_check_message += prefix + message
         print("-----  health check END  ----- ", job_name)
@@ -337,9 +334,9 @@ class Witness:
 
         prefix = "[Health check] - log_rotator - " + app_name + ": "
 
-        message = "ok\n\n"
+        message = "ok<br>"
         if os.path.exists(file_path) and time_diff > 70:
-            message = "Warning. " + str(int(time_diff)) + " minutes have passed since the last log rotation. Log rotation is executed once every 60 minutes.\n\n"
+            message = "Warning. " + str(int(time_diff)) + " minutes have passed since the last log rotation. Log rotation is executed once every 60 minutes.<br>"
 
         if app_name == 'monitor':
             self.__monitor_log_rotation_message = prefix + message
