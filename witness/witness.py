@@ -135,7 +135,7 @@ class Witness:
     def get_teams_text(self):
         self.__teams_text = "<br>- - - - - - - - - - - - - - - - - - - - results - - - - - - - - - - - - - - - - - - - -<br>"
         self.__teams_text += self.__chime_connection_message\
-            + self.__sauna_error_count_message + '<br>'\
+            + self.__sauna_error_count_message\
             + self.__health_check_message\
             + self.__monitor_log_rotation_message\
             + self.__alert_log_rotation_message\
@@ -239,29 +239,34 @@ class Witness:
                 count.setdefault(line_list[0], 0)
                 if line_list[1] == 'Failure to get status':
                     count[line_list[0]] += 1
+                    if count[line_list[0]] > 1:
+                        self.__warning += 1
                     print("line_list", line_list)
                     print("count[line_list[0]]", count[line_list[0]])
                     print("count", count)
                 print(i, "---------   END   ---------")
 
-        prefix = '[Status acquisition]: Number of "Failure to get status" in sauna rooms for 5 minutes is as follows\n\n'
-        message = ""
-        suffix = ", "
+        prefix = '[Status acquisition]: Number of "Failure to get status" in sauna rooms for 5 minutes is as follows<br>'
+        message = "None<br>"
         count_sorted = sorted(count.items())
         print("count_sorted", count_sorted)
         print("type(count_sorted)", type(count_sorted))
+        failures = []
         for i in range(len(count_sorted)):
-            print("count_sorted[i]", count_sorted[i])
-            print("type(count_sorted[i])", type(count_sorted[i]))
-            print("count_sorted[i][0]", count_sorted[i][0])
-            print("type(count_sorted[i][0])", type(count_sorted[i][0]))
-            print("count_sorted[i][1]", count_sorted[i][1])
-            print("type(count_sorted[i][1])", type(count_sorted[i][1]))
-            if i == len(count_sorted) - 1:
-                suffix = ""
-            message += count_sorted[i][0] + ": " + str(count_sorted[i][1]) + suffix
+            print("count_sorted[i]", count_sorted[i], type(count_sorted[i]))
+            print("count_sorted[i][0]", count_sorted[i][0], type(count_sorted[i][0]))
+            print("count_sorted[i][1]", count_sorted[i][1], type(count_sorted[i][1]))
+            if count_sorted[i][1] > 0:
+                failures.append(count_sorted[i])
+        if failures:
+            message = ""
+            for i in range(len(failures)):
+                message += failures[i][0] + ": " + str(failures[i][1]) + '<br>'
         self.__sauna_error_count_message = prefix + message + '<br>'
         print(self.__sauna_error_count_message)
+        print("failures", failures)
+        for i in range(len(failures)):
+            print("failure", i, failures[i], failures[i][0], failures[i][1])
         print("-----  sauna_error_count() END  -----")
 
 
