@@ -12,7 +12,7 @@ witness.health_check('alert')
 witness.log_rotation('monitor')
 witness.log_rotation('alert')
 
-# check connection error
+# check failure to get status
 witness.sauna_current_connection()
 witness.sauna_error_count()
 

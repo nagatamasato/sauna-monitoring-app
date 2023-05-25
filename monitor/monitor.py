@@ -84,7 +84,7 @@ class Monitor:
                         print("result_7", result)
 
                 except:
-                    result = "Failed to get status."
+                    result = "Failure to get status"
 
                 current_status = result
                 print("current_status", current_status)

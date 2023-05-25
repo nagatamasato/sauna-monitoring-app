@@ -217,15 +217,15 @@ class Witness:
             with open(self.__HOSTS_FILES[i], "r") as f:
                 hosts = json.load(f)
             for room in hosts:
-                if hosts[room]['status'] == "Connection Error":
+                if hosts[room]['status'] == "Failure to get status":
                     connection_errors.append(room)
         if connection_errors:
-            message = "Warning. Connection Error detected in the next sauna room.\n\n"
+            message = "Warning. Failure to get status detected in the next sauna room.\n\n"
             for j in range(len(connection_errors)):
                 if j == len(connection_errors) - 1:
                     suffix = ""
                 message += connection_errors[j] + suffix
-        print("Connection Errors", connection_errors)
+        print("Failure to get status", connection_errors)
         self.__sauna_current_connection_message = prefix + message + '\n\n'
         print("-----  sauna_current_connection check END  -----")
 
@@ -248,12 +248,12 @@ class Witness:
                 print("line_list", line_list)
                 print("type(line_list)", type(line_list))
                 count.setdefault(line_list[0], 0)
-                if line_list[1] == 'Connection Error':
+                if line_list[1] == 'Failure to get status':
                     count[line_list[0]] += 1
                     print("line_list", line_list)
                     print("count[line_list[0]]", count[line_list[0]])
                     print("count", count)
-        prefix = '[Connection]: Number of "Connection Errors" in sauna rooms for approximately 5 minutes is as follows\n\n'
+        prefix = '[Connection]: Number of "Failure to get status" in sauna rooms for approximately 5 minutes is as follows\n\n'
         message = ""
         suffix = ", "
         count_sorted = sorted(count.items())

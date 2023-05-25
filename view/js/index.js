@@ -16,4 +16,4 @@ function setBgColor(status, color) {
 }
 // statusが1なら背景色を赤色にする
 setBgColor("Emergency", 'red');
-setBgColor("Connection Error", 'yellow');
+setBgColor("Failure to get status", 'yellow');
