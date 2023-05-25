@@ -12,7 +12,7 @@ class Witness:
     def __init__(self):
         # Teams Webhook
         self.__WEBHOOK_URL = "https://x1studiocojp.webhook.office.com/webhookb2/2359c523-6ff7-4e43-9cce-b924c34b9a1b@3e594155-a0af-40ef-a8f2-dc8ce23f3844/IncomingWebhook/5798f01fbb53408ea38a9651139d18ea/4eb77287-1789-4810-b206-e1c3bd304107"
-        self.__mention = False
+        self.__warning = 0
         self.__teams_title = "TEST on Development Environment"
         self.__teams_text = ""
         self.__HOSTS_FILES = [
@@ -70,15 +70,10 @@ class Witness:
         teams_message.text(self.__teams_text)
         teams_message.send()
 
-        self.mention_condition()
-        if self.__mention:
+        print("Number of warning", self.__warning)
+        if self.__warning > 0:
             self.mention()
 
-
-    def mention_condition(self):
-        if False:
-            self.__mention = True
-        
 
     def mention(self):
 
@@ -305,6 +300,7 @@ class Witness:
         message = "ok<br>"
         if time_diff > threshold:
             message = "Warning. " + str(int(time_diff)) + " seconds have passed since the last log.<br>"
+            self.__warning += 1
 
         self.__health_check_message += prefix + message
         print("-----  health check END  ----- ", job_name)
@@ -337,6 +333,7 @@ class Witness:
         message = "ok<br>"
         if os.path.exists(file_path) and time_diff > 70:
             message = "Warning. " + str(int(time_diff)) + " minutes have passed since the last log rotation. Log rotation is executed once every 60 minutes.<br>"
+            self.__warning += 1
 
         if app_name == 'monitor':
             self.__monitor_log_rotation_message = prefix + message
