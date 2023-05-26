@@ -20,16 +20,16 @@ class Witness:
             "..\\hosts_2.json",
             "..\\hosts_3.json"
         ]
-        self.__monitor_witness_threshold = 10
-        self.__alert_witness_threshold = 5
+        self.__monitor_witness_threshold = 1
+        self.__alert_witness_threshold = 1
         self.__log_rotator_witness_threshold = 70
         self.__notes = '''<br>- - - - - - - - - - - - - - - - - - - - notes - - - - - - - - - - - - - - - - - - - -<br>
         [Health check]:<br>
             Verify that the script is working properly<br>
             by checking if the log update date/time is updated within the threshold.<br>
             The thresholds are as follows<br>
-                ・monitor_[1-3]: {} seconds<br>
-                ・alert: {} seconds<br>
+                ・monitor_[1-3]: {} minute<br>
+                ・alert: {} minute<br>
                 ・log_rotator: {} minutes<br>
         '''.format(
             self.__monitor_witness_threshold,
@@ -296,7 +296,7 @@ class Witness:
         last_line = self.get_last_lines(target_file_path, 1)
         print("last_line", last_line)
         last_updated = last_line[0].split(',')[index]
-        time_diff = (datetime.now() - datetime.strptime(last_updated, '%Y-%m-%d %H:%M:%S')).total_seconds()
+        time_diff = (datetime.now() - datetime.strptime(last_updated, '%Y-%m-%d %H:%M:%S')).total_seconds() / 60
         print("time_diff", time_diff)
         print("type(time_diff)", type(time_diff))
         print("int(time_diff)", int(time_diff))
@@ -304,7 +304,7 @@ class Witness:
         prefix = "[Health check] - " + job_name + ": "
         message = "ok<br>"
         if time_diff > threshold:
-            message = "Warning. " + str(int(time_diff)) + " seconds have passed since the last log.<br>"
+            message = "Warning. " + str(int(time_diff)) + " minutes have passed since the last log.<br>"
             self.__warning += 1
 
         self.__health_check_message += prefix + message
@@ -336,7 +336,7 @@ class Witness:
         prefix = "[Health check] - log_rotator - " + app_name + ": "
 
         message = "ok<br>"
-        if os.path.exists(file_path) and time_diff > 70:
+        if os.path.exists(file_path) and time_diff > self.__log_rotator_witness_threshold:
             message = "Warning. " + str(int(time_diff)) + " minutes have passed since the last log rotation. Log rotation is executed once every 60 minutes.<br>"
             self.__warning += 1
 

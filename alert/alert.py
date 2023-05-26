@@ -46,7 +46,6 @@ class Alert:
                 f.write(start)
                 
             for i in range(14):
-                # ALERT_ON
                 tn.write(self.__ALERT_ON_COMMAND.encode("UTF-8") + b"\r\n")
                 time.sleep(2)
                 tn.write(self.__ALERT_OFF_COMMAND.encode("UTF-8") + b"\r\n")
@@ -59,13 +58,14 @@ class Alert:
 
             # Telnetセッションを終了
             tn.write(b"exit\r\n")
+            time.sleep(1)
         
         except:
             with open(self.__LOG_PATH, "a") as f:
                 now = self.get_formatted_datetime()
-                connection_error = now + ",Connection Error. Can't ring the chime.\n"
-                f.write(connection_error)
-                print("Connection Error")
+                failure = now + ",Failed to chime in.\n"
+                f.write(failure)
+                print("Failed to chime in")
         print("alert END")
 
 
@@ -77,13 +77,13 @@ class Alert:
         print("hosts", hosts)
 
         emergency_rooms = ""
-        connection_errors = ""
+        failures = ""
         normal_rooms = ""
         for room in hosts:
             if hosts[room]['status'] == "1":
                 emergency_rooms += room + " "
-            elif hosts[room]['status'] == "Connection Error":
-                connection_errors += room + " "
+            elif hosts[room]['status'] == "Failure to get status":
+                failures += room + " "
             else:
                 normal_rooms += room + " "
 
@@ -91,8 +91,8 @@ class Alert:
             now = self.get_formatted_datetime()
             if emergency_rooms:
                 log = now + ",The following is Emergency " + emergency_rooms + "\n"
-            elif connection_errors:
-                log = now + ",The following is Connection Error " + connection_errors + "\n"
+            elif failures:
+                log = now + ",The following is Failure to get status " + failures + "\n"
             else:
                 log = now + ",The following is Normal " + normal_rooms + "\n"
             f.write(log)
