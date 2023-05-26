@@ -75,13 +75,16 @@ class Monitor:
                     for j in range(len(result)):
                         if re.search(self.__pattern, result[j]):
                             target = result[j]
-                            print("target", j, target)
+                            break
+                    print("target", target)
                     result = target
-                    if target:
+                    if result:
                         result = result.split(',')
                         print("result_6", result)
                         result = result[3]
                         print("result_7", result)
+                    else:
+                        result = "Failure to get status"
 
                 except:
                     result = "Failure to get status"
