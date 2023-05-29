@@ -41,31 +41,22 @@ class Alert:
             tn.read_until(b"QNET> ")
 
             with open(self.__LOG_PATH, "a") as f:
-                now = self.get_formatted_datetime()
-                start = now + ",alert START\n"
-                f.write(start)
-                
-            for i in range(14):
-                tn.write(self.__ALERT_ON_COMMAND.encode("UTF-8") + b"\r\n")
-                time.sleep(2)
-                tn.write(self.__ALERT_OFF_COMMAND.encode("UTF-8") + b"\r\n")
-                time.sleep(2)
-
-            with open(self.__LOG_PATH, "a") as f:
-                now = self.get_formatted_datetime()
-                end = now + ",alert END\n"
-                f.write(end)
-
-            # Telnetセッションを終了
-            tn.write(b"exit\r\n")
-            time.sleep(1)
-        
+                try:
+                    f.write(self.get_formatted_datetime() + ",ping-pong START\n")
+                    for i in range(14):
+                        tn.write(self.__ALERT_ON_COMMAND.encode("UTF-8") + b"\r\n")
+                        f.write(self.get_formatted_datetime() + ",ping\n")
+                        time.sleep(2)
+                        tn.write(self.__ALERT_OFF_COMMAND.encode("UTF-8") + b"\r\n")
+                        f.write(self.get_formatted_datetime() + ",pong\n")
+                        time.sleep(2)
+                    f.write(self.get_formatted_datetime() + ",ping-pong END\n")
+                except:
+                    f.write(self.get_formatted_datetime() + ",Failed to chime in.\n")
+                    print("Failed to chime in")
         except:
             with open(self.__LOG_PATH, "a") as f:
-                now = self.get_formatted_datetime()
-                failure = now + ",Failed to chime in.\n"
-                f.write(failure)
-                print("Failed to chime in")
+                f.write(self.get_formatted_datetime() + ",Failed to chime in.\n")
         print("alert END")
 
 
