@@ -270,16 +270,23 @@ class Witness:
         print("-----  sauna_error_count() END  -----")
 
 
-    def chime_error_count(self):
+    def chime_error_check(self):
 
-        print("-----  chime_error_count() START  -----")
-        last_lines = self.get_last_lines(self, self.__alert_log_file_path, 4)
-        log = last_lines[0]
-        print("last_lines", last_lines)
-        print("last_lines[0]", last_lines[0])
-        if True:
-            self.__chime_connection_message = ""
-        print("-----  chime_error_count() END  -----")
+        print("-----  chime_error_check() START  -----")
+        n = 3 * 30 * 5
+        last_lines = self.get_last_lines(self.__alert_log_file_path, n)
+        message = "None<br>"
+        for i in range(n):
+            if last_lines[i].split(',')[1] == "Failed to chime in.\n":
+                print("last_lines", i, last_lines[i].split(',')[1], type(last_lines[i].split(',')[1]))
+                message = "Warning. Failed to chime in.<br>"
+                self.__warning += 1
+                break
+            else:
+                print("last_lines", i, last_lines[i].split(',')[1], type(last_lines[i].split(',')[1]))
+        prefix = '[Failure to chime]: Failure to chime in 5 minutes is as follows<br>'
+        self.__chime_connection_message = prefix + message + '<br>'
+        print("-----  chime_error_check() END  -----")
 
 
     def health_check(self, job_name):
