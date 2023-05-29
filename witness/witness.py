@@ -246,7 +246,7 @@ class Witness:
                     print("count", count)
                 print(i, "---------   END   ---------")
 
-        prefix = '[Status acquisition]: Number of "Failure to get status" in sauna rooms for 5 minutes is as follows<br>'
+        prefix = '[Failure to get status]: Number of "Failure to get status" in 5 minutes is as follows<br>'
         message = "None<br>"
         count_sorted = sorted(count.items())
         print("count_sorted", count_sorted)
