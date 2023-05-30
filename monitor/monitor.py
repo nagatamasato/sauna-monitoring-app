@@ -160,7 +160,7 @@ class Monitor:
                         time.sleep(1)
 
             print("get_status END")
-            self.logger.debug('get_status END')
+            self.logger.info('get_status END')
         
         except Exception as e:
             self.logger.exception("An error occurred: %s", str(e))

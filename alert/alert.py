@@ -1,6 +1,8 @@
 from telnetlib import Telnet
 from datetime import datetime
 import json
+import logging
+from logging.handlers import RotatingFileHandler
 import time
 import sys
 sys.path.append('..\\common')
@@ -23,6 +25,14 @@ class Alert:
         path_generator = PathGenerator(self.job_name)
         self.__LOG_PATH = path_generator.create_path()
 
+        self.__logging_file = '..\\app_logs\\' + self.job_name + '.log'
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+        handler = RotatingFileHandler(self.__logging_file, maxBytes= 100 * 1024 * 1024 , backupCount=5)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        self.logger.addHandler(handler)
+
 
     def get_formatted_datetime(self):
         return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -31,6 +41,7 @@ class Alert:
     def alert(self):
 
         print("alert START")
+        self.logger.info('alert START')
         try:
             # Telnetセッションを開始
             tn = Telnet(self.__HOST, self.__PORT, timeout=self.__timeout_threshold)
@@ -41,30 +52,39 @@ class Alert:
             tn.read_until(b"QNET> ")
 
             with open(self.__LOG_PATH, "a") as f:
-                try:
-                    f.write(self.get_formatted_datetime() + ",ping-pong START\n")
-                    for i in range(14):
-                        tn.write(self.__ALERT_ON_COMMAND.encode("UTF-8") + b"\r\n")
-                        f.write(self.get_formatted_datetime() + ",ping\n")
-                        time.sleep(2)
-                        tn.write(self.__ALERT_OFF_COMMAND.encode("UTF-8") + b"\r\n")
-                        f.write(self.get_formatted_datetime() + ",pong\n")
-                        time.sleep(2)
-                    f.write(self.get_formatted_datetime() + ",ping-pong END\n")
-                except:
-                    f.write(self.get_formatted_datetime() + ",Failed to chime in.\n")
-                    print("Failed to chime in")
-        except:
+                f.write(self.get_formatted_datetime() + ",ping-pong START\n")
+                print('ping-pong START')
+                self.logger.info('ping-pong START')
+                for i in range(14):
+                    tn.write(self.__ALERT_ON_COMMAND.encode("UTF-8") + b"\r\n")
+                    f.write(self.get_formatted_datetime() + ",ping " + str(i) + '\n')
+                    print('ping', i)
+                    self.logger.info('ping ' + str(i))
+                    time.sleep(2)
+                    tn.write(self.__ALERT_OFF_COMMAND.encode("UTF-8") + b"\r\n")
+                    f.write(self.get_formatted_datetime() + ",pong " + str(i) + '\n')
+                    print('pong', i)
+                    self.logger.info('pong ' + str(i))
+                    time.sleep(2)
+                f.write(self.get_formatted_datetime() + ",ping-pong END\n")
+                print('ping-pong END')
+                self.logger.info('ping-pong END')
+
+        except Exception as e:
             with open(self.__LOG_PATH, "a") as f:
                 f.write(self.get_formatted_datetime() + ",Failed to chime in.\n")
+            self.logger.exception("An error occurred: %s", str(e))
         print("alert END")
+        self.logger.info('alert END')
 
 
     def check_emergency(self, hosts_file):
 
-        with open(hosts_file, "r") as f:
-            hosts = json.load(f)
-
+        try:
+            with open(hosts_file, "r") as f:
+                hosts = json.load(f)
+        except Exception as e:
+            self.logger.exception("An error occurred: %s", str(e))
         print("hosts", hosts)
 
         emergency_rooms = ""
@@ -77,16 +97,25 @@ class Alert:
                 failures += room + " "
             else:
                 normal_rooms += room + " "
+        print('emergency_rooms', emergency_rooms)
+        print('failures', failures)
+        print('normal_rooms', normal_rooms)
+        self.logger.debug("emergency_rooms: %s", emergency_rooms)
+        self.logger.debug("failures: %s", failures)
+        self.logger.debug("normal_rooms: %s", normal_rooms)
 
-        with open(self.__LOG_PATH, "a") as f:
-            now = self.get_formatted_datetime()
-            if emergency_rooms:
-                log = now + ",The following is Emergency " + emergency_rooms + "\n"
-            elif failures:
-                log = now + ",The following is Failure to get status " + failures + "\n"
-            else:
-                log = now + ",The following is Normal " + normal_rooms + "\n"
-            f.write(log)
+        try:
+            with open(self.__LOG_PATH, "a") as f:
+                now = self.get_formatted_datetime()
+                if emergency_rooms:
+                    log = now + ",The following is Emergency " + emergency_rooms + "\n"
+                elif failures:
+                    log = now + ",The following is Failure to get status " + failures + "\n"
+                else:
+                    log = now + ",The following is Normal " + normal_rooms + "\n"
+                f.write(log)
+        except Exception as e:
+            self.logger.exception("An error occurred: %s", str(e))
 
         if emergency_rooms:
             self.alert()
