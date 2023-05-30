@@ -3,3 +3,4 @@ __pycache__
 monitor/logs/*
 alert/logs/*
 log_rotator/logs/* 
+app_logs/*
