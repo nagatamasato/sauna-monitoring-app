@@ -5,9 +5,11 @@ import os
 class PathGenerator:
 
     def __init__(self, job_name):
+        
         self.job_name = job_name
         self.__LOG_FOLDER = ".\\logs"
         self.__child_log_folder = ""
+        self.__APP_LOGS_DIR = '..\\app_logs'
 
 
     def create_folder(self):
@@ -17,6 +19,9 @@ class PathGenerator:
         
         if not os.path.exists(self.__child_log_folder):
             os.makedirs(self.__child_log_folder)
+
+        if not os.path.exists(self.__APP_LOGS_DIR):
+            os.makedirs(self.__APP_LOGS_DIR)
 
 
     def create_path(self):

@@ -1,6 +1,7 @@
 from telnetlib import Telnet
 from datetime import datetime
 import json
+import logging
 import os
 import re
 import time
@@ -27,6 +28,10 @@ class Monitor:
         path_generator = PathGenerator(self.job_name)
         self.__LOG_PATH = path_generator.create_path()
 
+        logging.basicConfig(filename= '..\\app_logs\\' + job_name + '.log', encoding='utf-8', level=logging.DEBUG)
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+
 
     def get_formatted_datetime(self):
         return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -35,6 +40,7 @@ class Monitor:
     def get_status(self):
 
         print("get_status START")
+        self.logger.info('get_status START')
 
         write_header = False
 
@@ -63,26 +69,34 @@ class Monitor:
                     tn.write(self.__GET_STATUS_COMMAND.encode("utf-8") + b"\r\n")
                     result = tn.read_until(b"QNET> ")
                     print("result_1", result)
+                    self.logger.debug("result_1: %s", result)
                     result = result.decode("utf-8")
                     print("result_2", result)
+                    self.logger.debug("result_2: %s", result)
                     result = result.replace("QNET> ", "")
                     print("result_3", result)
+                    self.logger.debug("result_3: %s", result)
                     result = result.replace("\n", "")
                     print("result_4", result)
+                    self.logger.debug("result_4: %s", result)
                     result = result.splitlines()
                     print("result_5", result)
+                    self.logger.debug("result_5: %s", result)
                     target = ""
                     for j in range(len(result)):
                         if re.search(self.__pattern, result[j]):
                             target = result[j]
                             break
                     print("target", target)
+                    self.logger.debug("target: %s", target)
                     result = target
                     if result:
                         result = result.split(',')
                         print("result_6", result)
+                        self.logger.debug("result_6: %s", result)
                         result = result[3]
                         print("result_7", result)
+                        self.logger.debug("result_7: %s", result)
                     else:
                         result = "Failure to get status"
 
@@ -91,16 +105,21 @@ class Monitor:
 
                 current_status = result
                 print("current_status", current_status)
+                self.logger.debug("current_status: %s", current_status)
 
                 now = self.get_formatted_datetime()
                 print("current time: ", now)
+                self.logger.debug("current_time: %s", now)
  
                 with open(self.json_path, "r") as jsonf:
                     hosts = json.load(jsonf)
 
                 print("statuses", hosts)
+                self.logger.debug("statuses: %s", hosts)
                 print("old_status", hosts[i]['status'])
+                self.logger.debug("old_status: %s", hosts[i]['status'])
                 print("new_status", current_status)
+                self.logger.debug("new_status: %s", current_status)
 
                 hosts[i]['status'] = current_status
 
@@ -132,6 +151,7 @@ class Monitor:
                     time.sleep(1)
 
         print("get_status END")
+        self.logger.debug('get_status END')
 
 
     def monitoring(self):
@@ -147,9 +167,11 @@ class Monitor:
 
         start_time = datetime.now()
         print("start_time", start_time)
+        self.logger.debug("start_time: %s", start_time)
 
         for i in range(FREQUENCY):
             print(i + 1, "/", FREQUENCY)
+            self.logger.info("%i/%i", i, FREQUENCY)
             # 開始時刻
             start = datetime.now()
             # サウナルームのステータスを取得
@@ -160,15 +182,21 @@ class Monitor:
             runtime = (end - start).total_seconds()
 
             print("start", start)
+            self.logger.debug("start: %s", start)
             print("end", end)
+            self.logger.debug("end: %s", end)
             print("runtime", runtime)
+            self.logger.debug("runtime: %s", runtime)
 
             wait = MAXTIME - runtime
             print("wait", wait)
+            self.logger.debug("wait: %s", wait)
             if (wait > 0):
                 time.sleep(wait)
 
             end_time = datetime.now()
             total_time = (end_time - start_time).total_seconds()
             print("end_time", end_time)
+            self.logger.debug("end_time: %s", end_time)
             print("total_time", total_time)
+            self.logger.debug("total_time: %s", total_time)
