@@ -2,6 +2,7 @@ from telnetlib import Telnet
 from datetime import datetime
 import json
 import logging
+from logging.handlers import RotatingFileHandler
 import os
 import re
 import time
@@ -28,9 +29,13 @@ class Monitor:
         path_generator = PathGenerator(self.job_name)
         self.__LOG_PATH = path_generator.create_path()
 
-        logging.basicConfig(filename= '..\\app_logs\\' + job_name + '.log', encoding='utf-8', level=logging.DEBUG)
+        self.__logging_file = '..\\app_logs\\' + job_name + '.log'
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
+        handler = RotatingFileHandler(self.__logging_file, maxBytes= 100 * 1024 * 1024 , backupCount=5)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        self.logger.addHandler(handler)
 
 
     def get_formatted_datetime(self):
@@ -47,111 +52,118 @@ class Monitor:
         if not os.path.exists(self.__LOG_PATH):
             write_header = True
 
-        with open(self.__LOG_PATH, "a") as f:
-            if write_header:
-                header = "Room,Status,Emergency_time,Updated_time,Host\n"
-                f.write(header)
-                write_header = False
+        try:
+            with open(self.__LOG_PATH, "a") as f:
+                if write_header:
+                    header = "Room,Status,Emergency_time,Updated_time,Host\n"
+                    f.write(header)
+                    write_header = False
 
-            with open(self.json_path, "r") as jsonf:
-                hosts = json.load(jsonf)
-                
-            for i in hosts:
-                # start Telnet session
-                tn = ""
-                try:
-                    tn = Telnet(hosts[i]['host'], self.__PORT, timeout=self.__timeout_threshold)
-                    tn.read_until(b"login: ")
-                    tn.write(self.__USER.encode("utf-8") + b"\r\n")
-                    tn.read_until(b"password: ")
-                    tn.write(self.__PASSWORD.encode("utf-8") + b"\r\n")
-                    tn.read_until(b"QNET> ")
-                    tn.write(self.__GET_STATUS_COMMAND.encode("utf-8") + b"\r\n")
-                    result = tn.read_until(b"QNET> ")
-                    print("result_1", result)
-                    self.logger.debug("result_1: %s", result)
-                    result = result.decode("utf-8")
-                    print("result_2", result)
-                    self.logger.debug("result_2: %s", result)
-                    result = result.replace("QNET> ", "")
-                    print("result_3", result)
-                    self.logger.debug("result_3: %s", result)
-                    result = result.replace("\n", "")
-                    print("result_4", result)
-                    self.logger.debug("result_4: %s", result)
-                    result = result.splitlines()
-                    print("result_5", result)
-                    self.logger.debug("result_5: %s", result)
-                    target = ""
-                    for j in range(len(result)):
-                        if re.search(self.__pattern, result[j]):
-                            target = result[j]
-                            break
-                    print("target", target)
-                    self.logger.debug("target: %s", target)
-                    result = target
-                    if result:
-                        result = result.split(',')
-                        print("result_6", result)
-                        self.logger.debug("result_6: %s", result)
-                        result = result[3]
-                        print("result_7", result)
-                        self.logger.debug("result_7: %s", result)
-                    else:
-                        result = "Failure to get status"
-
-                except:
-                    result = "Failure to get status"
-
-                current_status = result
-                print("current_status", current_status)
-                self.logger.debug("current_status: %s", current_status)
-
-                now = self.get_formatted_datetime()
-                print("current time: ", now)
-                self.logger.debug("current_time: %s", now)
- 
                 with open(self.json_path, "r") as jsonf:
                     hosts = json.load(jsonf)
+                    
+                for i in hosts:
+                    # start Telnet session
+                    tn = ""
+                    try:
+                        tn = Telnet(hosts[i]['host'], self.__PORT, timeout=self.__timeout_threshold)
+                        tn.read_until(b"login: ")
+                        tn.write(self.__USER.encode("utf-8") + b"\r\n")
+                        tn.read_until(b"password: ")
+                        tn.write(self.__PASSWORD.encode("utf-8") + b"\r\n")
+                        tn.read_until(b"QNET> ")
+                        tn.write(self.__GET_STATUS_COMMAND.encode("utf-8") + b"\r\n")
+                        result = tn.read_until(b"QNET> ")
+                        print("result_1", result)
+                        self.logger.debug("result_1: %s", result)
+                        result = result.decode("utf-8")
+                        print("result_2", result)
+                        self.logger.debug("result_2: %s", result)
+                        result = result.replace("QNET> ", "")
+                        print("result_3", result)
+                        self.logger.debug("result_3: %s", result)
+                        result = result.replace("\n", "")
+                        print("result_4", result)
+                        self.logger.debug("result_4: %s", result)
+                        result = result.splitlines()
+                        print("result_5", result)
+                        self.logger.debug("result_5: %s", result)
+                        target = ""
+                        for j in range(len(result)):
+                            if re.search(self.__pattern, result[j]):
+                                target = result[j]
+                                break
+                        print("target", target)
+                        self.logger.debug("target: %s", target)
+                        result = target
+                        if result:
+                            result = result.split(',')
+                            print("result_6", result)
+                            self.logger.debug("result_6: %s", result)
+                            result = result[3]
+                            print("result_7", result)
+                            self.logger.debug("result_7: %s", result)
+                        else:
+                            result = "Failure to get status"
+                            print("Failed to get target")
+                            self.logger.debug("Failed to get target")
 
-                print("statuses", hosts)
-                self.logger.debug("statuses: %s", hosts)
-                print("old_status", hosts[i]['status'])
-                self.logger.debug("old_status: %s", hosts[i]['status'])
-                print("new_status", current_status)
-                self.logger.debug("new_status: %s", current_status)
+                    except Exception as e:
+                        result = "Failure to get status"
+                        self.logger.exception("An error occurred: %s", str(e))
 
-                hosts[i]['status'] = current_status
+                    current_status = result
+                    print("current_status", current_status)
+                    self.logger.debug("current_status: %s", current_status)
 
-                # 緊急ボタンONを最初に検知した時刻をセット
-                if hosts[i]['status'] == '1' and hosts[i]['emergency_time'] == "":
-                    hosts[i]['emergency_time'] = now
-                    hosts[i]['history'].append(now)
+                    now = self.get_formatted_datetime()
+                    print("current time: ", now)
+                    self.logger.debug("current_time: %s", now)
+    
+                    with open(self.json_path, "r") as jsonf:
+                        hosts = json.load(jsonf)
 
-                # 緊急ボタンOFFを検知した場合は空欄に戻す
-                if hosts[i]['status'] == '0':
-                    hosts[i]['emergency_time'] = ""
+                    print("statuses", hosts)
+                    self.logger.debug("statuses: %s", hosts)
+                    print("old_status", hosts[i]['status'])
+                    self.logger.debug("old_status: %s", hosts[i]['status'])
+                    print("new_status", current_status)
+                    self.logger.debug("new_status: %s", current_status)
 
-                hosts[i]['updated_time'] = now
+                    hosts[i]['status'] = current_status
 
-                with open(self.json_path, "w") as jsonf:
-                    json.dump(hosts, jsonf)
+                    # 緊急ボタンONを最初に検知した時刻をセット
+                    if hosts[i]['status'] == '1' and hosts[i]['emergency_time'] == "":
+                        hosts[i]['emergency_time'] = now
+                        hosts[i]['history'].append(now)
 
-                emergency_time = hosts[i]['emergency_time']
-                log = i + "," + current_status + "," + emergency_time + "," + now + "," + hosts[i]['host'] + "\n"
-                f.write(log)
+                    # 緊急ボタンOFFを検知した場合は空欄に戻す
+                    if hosts[i]['status'] == '0':
+                        hosts[i]['emergency_time'] = ""
 
-                view = GenerateHtml()
-                view.monitoring()
-                view.history()
+                    hosts[i]['updated_time'] = now
 
-                # terminate Telnet session
-                if tn:
-                    tn.write(b"exit\n")
-                    time.sleep(1)
+                    with open(self.json_path, "w") as jsonf:
+                        json.dump(hosts, jsonf)
 
-        print("get_status END")
-        self.logger.debug('get_status END')
+                    emergency_time = hosts[i]['emergency_time']
+                    log = i + "," + current_status + "," + emergency_time + "," + now + "," + hosts[i]['host'] + "\n"
+                    f.write(log)
+
+                    view = GenerateHtml()
+                    view.monitoring()
+                    view.history()
+
+                    # terminate Telnet session
+                    if tn:
+                        tn.write(b"exit\n")
+                        time.sleep(1)
+
+            print("get_status END")
+            self.logger.debug('get_status END')
+        
+        except Exception as e:
+            self.logger.exception("An error occurred: %s", str(e))
 
 
     def monitoring(self):
