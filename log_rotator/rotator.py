@@ -43,12 +43,22 @@ class Rotator:
         print("log_dirs", log_dirs)
 
         app_log_path = ".\\logs\\" + app_name + "-log_rotator-log.csv"
+        write_header = False
+        if not os.path.exists(app_log_path):
+            write_header = True
+        with open(app_log_path, "a") as f:
+            if write_header:
+                header = "Datetime,Message\n"
+                f.write(header)
+                write_header = False
+
         if len(log_dirs) > 3:
             while len(log_dirs) > 3:
                 oldest_dir = min(log_dirs)
                 shutil.rmtree(folder_path + "\\" + oldest_dir)
                 log_dirs.remove(oldest_dir)
                 message = app_name + " log folders exceeded 3. " + oldest_dir + " was deleted."
+
                 with open(app_log_path, "a") as f:
                     now = self.get_formatted_datetime()
                     log = now + "," + message + "\n"
@@ -56,9 +66,9 @@ class Rotator:
         else:
             message = "No more than 3 " + app_name + " log folders."
             with open(app_log_path, "a") as f:
-                    now = self.get_formatted_datetime()
-                    log = now + "," + message + "\n"
-                    f.write(log)
+                now = self.get_formatted_datetime()
+                log = now + "," + message + "\n"
+                f.write(log)
         print(app_name + " log_rotation END")
 
 
@@ -67,8 +77,6 @@ class Rotator:
         print("log_rotator_log_rotation START")
         # しきい値を100MBに設定する
         threshold = 1 * 1024 * 1024
-        # テスト用の設定値
-        # threshold = 256
         folder_path = ".\\logs"
         files = [
             "monitor-log_rotator-log.csv",

@@ -48,7 +48,6 @@ class Monitor:
         self.logger.info('get_status START')
 
         write_header = False
-
         if not os.path.exists(self.__LOG_PATH):
             write_header = True
 

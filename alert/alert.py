@@ -3,6 +3,7 @@ from datetime import datetime
 import json
 import logging
 from logging.handlers import RotatingFileHandler
+import os
 import time
 import sys
 sys.path.append('..\\common')
@@ -114,8 +115,16 @@ class Alert:
         self.logger.debug("failures: %s", failures)
         self.logger.debug("normal_rooms: %s", normal_rooms)
 
+        write_header = False
+        if not os.path.exists(self.__LOG_PATH):
+            write_header = True
+
         try:
             with open(self.__LOG_PATH, "a") as f:
+                if write_header:
+                    header = "Datetime,Message\n"
+                    f.write(header)
+                    write_header = False
                 now = self.get_formatted_datetime()
                 if emergency_rooms:
                     log = now + ",The following is Emergency " + emergency_rooms + "\n"
