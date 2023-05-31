@@ -13,8 +13,8 @@ witness.log_rotation('monitor')
 witness.log_rotation('alert')
 
 # check failure to get status
-# witness.sauna_current_connection()
 witness.sauna_error_count()
+# check failure to chime
 witness.chime_error_check()
 
 # send report

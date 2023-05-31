@@ -32,7 +32,7 @@ class Monitor:
         self.__logging_file = '..\\app_logs\\' + job_name + '.log'
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
-        handler = RotatingFileHandler(self.__logging_file, maxBytes= 100 * 1024 * 1024 , backupCount=5)
+        handler = RotatingFileHandler(self.__logging_file, maxBytes= 100 * 1024 * 1024, backupCount=5)
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         handler.setFormatter(formatter)
         self.logger.addHandler(handler)
