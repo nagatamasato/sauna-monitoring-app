@@ -64,7 +64,6 @@ class Monitor:
                     
                 for i in hosts:
                     # start Telnet session
-                    tn = ""
                     try:
                         tn = Telnet(hosts[i]['host'], self.__PORT, timeout=self.__timeout_threshold)
                         tn.read_until(b"login: ")
@@ -155,9 +154,13 @@ class Monitor:
                     view.history()
 
                     # terminate Telnet session
-                    if tn:
+                    try:
                         tn.write(b"exit\n")
+                        self.logger.info('telnet session terminated')
                         time.sleep(1)
+                    except Exception as e:
+                        self.logger.exception("An error occurred: %s", str(e))
+
 
             print("get_status END")
             self.logger.info('get_status END')

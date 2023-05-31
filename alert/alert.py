@@ -43,7 +43,8 @@ class Alert:
         print("alert START")
         self.logger.info('alert START')
         try:
-            # Telnetセッションを開始
+            # Telnet session start
+            self.logger.info('telnet session start')
             tn = Telnet(self.__HOST, self.__PORT, timeout=self.__timeout_threshold)
             tn.read_until(b"login: ")
             tn.write(self.__USER.encode("UTF-8") + b"\r\n")
@@ -74,6 +75,15 @@ class Alert:
             with open(self.__LOG_PATH, "a") as f:
                 f.write(self.get_formatted_datetime() + ",Failed to chime in.\n")
             self.logger.exception("An error occurred: %s", str(e))
+
+        # terminate Telnet session
+        try:
+            tn.write(b"exit\n")
+            self.logger.info('telnet session terminated')
+            time.sleep(1)
+        except Exception as e:
+            self.logger.exception("An error occurred: %s", str(e))
+
         print("alert END")
         self.logger.info('alert END')
 
