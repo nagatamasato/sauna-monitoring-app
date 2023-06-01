@@ -14,7 +14,7 @@ class GenerateHtml:
 
     def monitoring(self):
 
-        # HTML作成
+        # Generate HTML
         html = "<!DOCTYPE html>\n"
         html += "<html>\n"
         html += "<head>\n"
@@ -40,7 +40,7 @@ class GenerateHtml:
         for i in range(len(hosts_files)):
             with open(hosts_files[i], "r") as jsonf:
                 hosts = json.load(jsonf)
-            # JSONデータを解析し、各行のデータをテーブルに追加する
+            # Parses JSON data and adds each row of data to a table
             for room in hosts:
                 host = hosts[room]['host']
                 status = hosts[room]['status']
@@ -60,14 +60,14 @@ class GenerateHtml:
         html += "</body>\n"
         html += "</html>"
 
-        # HTMLをファイルに書き出す
+        # Export HTML to file
         with open('..\\view\\index.html', 'w') as f:
             f.write(html)
 
 
     def history(self):
 
-        # HTML生成
+        # Generate HTML
         html = "<!DOCTYPE html>\n"
         html += "<html>\n"
         html += "<head>\n"
@@ -84,7 +84,7 @@ class GenerateHtml:
         html += "       </button>\n"
         html += "   </div>\n"
 
-        # テーブルのヘッダーを作成
+        # Create table headers
         table_header = '    <tr><th>Room</th><th>Emergency date</th></tr>\n'
 
         hosts_files = self.__hosts_files
@@ -92,21 +92,21 @@ class GenerateHtml:
         for i in range(len(hosts_files)):
             with open(hosts_files[i], "r") as jsonf:
                 hosts = json.load(jsonf)
-            # テーブルの各行を作成
+            # Create each row of the table
             for room in hosts:
-                # 日付の降順にソート
+                # Sort by date in descending order
                 history = sorted(hosts[room]['history'], reverse=True)
-                # テーブルの行を作成
+                # Create table rows
                 row = '     <tr><td>{}</td><td>{}</td></tr>\n'.format(room, '</td></tr><tr><td></td><td>'.join(history))
-                # テーブルの行を追加
+                # Add a table row
                 table_rows += row
 
-        # テーブルを作成する
+        # Create table
         table = '   <table>\n{} </table>\n'.format(table_header + table_rows)
         html += table
         html += '<script src="js/history.js"></script>\n'
         html += "</body>\n"
         html += "</html>"
-        # HTMLをファイルに書き出す
+        # Export HTML to file
         with open('..\\view\\history.html', 'w') as f:
             f.write(html)
