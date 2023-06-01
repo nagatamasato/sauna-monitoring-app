@@ -16,24 +16,6 @@ class Witness:
         self.__monitor_witness_threshold = 1
         self.__alert_witness_threshold = 1
         self.__log_rotator_witness_threshold = 70
-        self.__notes = '''# - - - - - - - - - - - - - - - - - - - notes - - - - - - - - - - - - - - - - - - - #\n
-        [Health check]\n
-            Verify that the script is working properly by checking if the log time is updated within the threshold.\n
-            The thresholds are as follows\n
-                ・monitor: {} minute\n
-                ・alert: {} minute\n
-                ・log_rotator: {} minutes\n
-
-        [Conditions for mention]\n
-            If any of the following apply\n
-                ・Failed to ring the chime.\n
-                ・Failed to get status more than twice in the same room within 5 minutes.\n
-                ・Health check exceeded the threshold.\n
-        '''.format(
-            self.__monitor_witness_threshold,
-            self.__alert_witness_threshold,
-            self.__log_rotator_witness_threshold
-        )
 
         #health check
         self.__health_check_message = ""
@@ -171,8 +153,7 @@ class Witness:
             + self.__sauna_error_count_message + '\n'\
             + self.__health_check_message\
             + self.__monitor_log_rotation_message\
-            + self.__alert_log_rotation_message + '\n'\
-            + self.__notes
+            + self.__alert_log_rotation_message
     
 
     def get_last_lines(self, file_path, n):
@@ -268,7 +249,7 @@ class Witness:
         if failures:
             message = ""
             for i in range(len(failures)):
-                message += failures[i][0] + ": " + str(failures[i][1]) + '\n'
+                message += failures[i][0] + ": " + str(failures[i][1]) + '\n\n'
         self.__sauna_error_count_message = prefix + message + '\n'
         # print(self.__sauna_error_count_message)
         # print("failures", failures)
