@@ -18,11 +18,17 @@ class Witness:
         self.__log_rotator_witness_threshold = 70
         self.__notes = '''# - - - - - - - - - - - - - - - - - - - notes - - - - - - - - - - - - - - - - - - - #\n
         [Health check]\n
-            Verify that the script is working properly by checking if the log update datetime is updated within the threshold.\n
+            Verify that the script is working properly by checking if the log time is updated within the threshold.\n
             The thresholds are as follows\n
-                ・monitor_[1-3]: {} minute\n
+                ・monitor: {} minute\n
                 ・alert: {} minute\n
                 ・log_rotator: {} minutes\n
+
+        [Conditions for mention]\n
+            If any of the following apply\n
+                ・Failed to ring the chime.\n
+                ・Failed to get status more than twice in the same room within 5 minutes.\n
+                ・Health check exceeded the threshold.\n
         '''.format(
             self.__monitor_witness_threshold,
             self.__alert_witness_threshold,
