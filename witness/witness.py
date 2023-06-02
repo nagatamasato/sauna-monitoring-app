@@ -11,7 +11,8 @@ class Witness:
     def __init__(self):
         # Teams Webhook
         self.__WEBHOOK_URL = "https://x1studiocojp.webhook.office.com/webhookb2/2359c523-6ff7-4e43-9cce-b924c34b9a1b@3e594155-a0af-40ef-a8f2-dc8ce23f3844/IncomingWebhook/5798f01fbb53408ea38a9651139d18ea/4eb77287-1789-4810-b206-e1c3bd304107"
-        self.__warning = 0
+        self.__warning = False
+        self.__mention_developer = False
         self.__teams_text = ""
         self.__monitor_witness_threshold = 1
         self.__alert_witness_threshold = 1
@@ -40,22 +41,15 @@ class Witness:
         self.__sauna_error_count_message = ""
         self.__chime_connection_message = ""
 
-        self.__mention = False
-
 
     def report(self):
-
-        print("Number of warning", self.__warning)
-        if self.__warning > 0:
-            self.__mention = True
 
         self.get_teams_text()
 
         # Define JSON for Adaptive Cards
         mention_card = {
             "type": "message",
-            "attachments": [
-                {
+            "attachments": [{
                 "contentType": "application/vnd.microsoft.card.adaptive",
                 "content": {
                     "type": "AdaptiveCard",
@@ -91,8 +85,56 @@ class Witness:
                                 "type": "mention",
                                 "text": "<at>Masato Nagata</at>",
                                 "mentioned": {
-                                "id": "nagata-m@x1studio.co.jp",
-                                "name": "Masato Nagata"
+                                    "id": "nagata-m@x1studio.co.jp",
+                                    "name": "Masato Nagata"
+                                }
+                            }
+                        ]
+                    }
+                }
+            }]
+        }
+
+        mention_developer_card = {
+            "type": "message",
+            "attachments": [{
+                "contentType": "application/vnd.microsoft.card.adaptive",
+                "content": {
+                    "type": "AdaptiveCard",
+                    "body": [
+                        {
+                            "type": "TextBlock",
+                            "text": "<at>Masato Nagata</at>",
+                            "wrap": True
+                        },
+                        {
+                            "type": "TextBlock",
+                            "size": "Medium",
+                            "weight": "Bolder",
+                            "text": "TEST on Development Environment",
+                            "wrap": True
+                        },
+                        {
+                            "type": "TextBlock",
+                            "text": "Confirmation required"
+                        },
+                        {
+                            "type": "TextBlock",
+                            "text": self.__teams_text,
+                            "wrap": True
+                        }
+                    ],
+                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                    "version": "1.0",
+                    "msteams": {
+                        "width": "Full",
+                        "entities": [
+                            {
+                                "type": "mention",
+                                "text": "<at>Masato Nagata</at>",
+                                "mentioned": {
+                                    "id": "nagata-m@x1studio.co.jp",
+                                    "name": "Masato Nagata"
                                 }
                             }
                         ]
@@ -130,7 +172,7 @@ class Witness:
                     "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
                     "version": "1.0",
                     "msteams": {
-                        "width": "Full",
+                        "width": "Full"
                     }
                 }
             }]
@@ -139,8 +181,10 @@ class Witness:
         headers = {
             'Content-Type': 'application/json'
         }
-        if self.__mention:
+        if self.__warning:
             card = mention_card
+        elif self.__mention_developer:
+            card = mention_developer_card
         else:
             card = non_mention_card
         response = requests.post(self.__WEBHOOK_URL, headers=headers, data=json.dumps(card))
@@ -228,7 +272,7 @@ class Witness:
                 if line_list[1] == 'Failure to get status':
                     count[line_list[0]] += 1
                     if count[line_list[0]] > 1:
-                        self.__warning += 1
+                        self.__warning = True
                 #     print("line_list", line_list)
                 #     print("count[line_list[0]]", count[line_list[0]])
                 #     print("count", count)
@@ -258,23 +302,26 @@ class Witness:
         # print("-----  sauna_error_count() END  -----")
 
 
-    def chime_error_check(self):
+    def chime_error_count(self):
 
-        # print("-----  chime_error_check() START  -----")
+        # print("-----  chime_error_count() START  -----")
         n = 3 * 30 * 5
         last_lines = self.get_last_lines(self.__alert_log_file_path, n)
         message = "None\n"
+        count = 0
         for i in range(n):
+            # print("last_lines", i, last_lines[i].split(',')[1], type(last_lines[i].split(',')[1]))
             if last_lines[i].split(',')[1] == "Failed to chime in.\n":
-                # print("last_lines", i, last_lines[i].split(',')[1], type(last_lines[i].split(',')[1]))
-                message = "Warning. Failed to chime in.\n"
-                self.__warning += 1
-                break
-            # else:
-            #     print("last_lines", i, last_lines[i].split(',')[1], type(last_lines[i].split(',')[1]))
-        prefix = '[Failure to chime]: Failure to chime in 5 minutes is as follows\n\n'
+                count += 1
+        if 0 < count:
+            message = str(count) + " times\n"
+            if count < 5:
+                self.__mention_developer = True
+            else:
+                self.__warning = True
+        prefix = '[Failure to chime]: Number of "Failure to chime" in 5 minutes is as follows\n\n'
         self.__chime_connection_message = prefix + message + '\n'
-        # print("-----  chime_error_check() END  -----")
+        # print("-----  chime_error_count() END  -----")
 
 
     def health_check(self, job_name):
@@ -300,8 +347,7 @@ class Witness:
         message = "ok\n"
         if time_diff > threshold:
             message = "Warning. " + str(int(time_diff)) + " minutes have passed since the last log.\n"
-            self.__warning += 1
-
+            self.__warning = True
         self.__health_check_message += prefix + message + '\n'
         # print("-----  health check END  ----- ", job_name)
 
@@ -333,7 +379,7 @@ class Witness:
         message = "ok\n\n"
         if os.path.exists(file_path) and time_diff > self.__log_rotator_witness_threshold:
             message = "Warning. " + str(int(time_diff)) + " minutes have passed since the last log rotation. Log rotation is executed once every 60 minutes.\n\n"
-            self.__warning += 1
+            self.__warning = True
 
         if app_name == 'monitor':
             self.__monitor_log_rotation_message = prefix + message

@@ -15,7 +15,7 @@ witness.log_rotation('alert')
 # check failure to get status
 witness.sauna_error_count()
 # check failure to chime
-witness.chime_error_check()
+witness.chime_error_count()
 
 # send report
 witness.report()
