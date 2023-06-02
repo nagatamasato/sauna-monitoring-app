@@ -175,7 +175,7 @@ class Monitor:
         # 1回のINTERVAL中の実行回数
         FREQUENCY = 10
         # 実行時間がINTERVAL(60秒)を超えないように設定
-        MARGIN = 0.05
+        MARGIN = 0.2
         # １回あたりの最大時間
         MAXTIME = (INTERVAL / FREQUENCY) - MARGIN
 

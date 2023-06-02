@@ -81,7 +81,8 @@ class Alert:
         try:
             tn.write(b"exit\n")
             self.logger.info('telnet session terminated')
-            time.sleep(1)
+            sys.exit()
+
         except Exception as e:
             self.logger.exception("An error occurred: %s", str(e))
 
@@ -94,9 +95,9 @@ class Alert:
         try:
             with open(hosts_file, "r") as f:
                 hosts = json.load(f)
+
         except Exception as e:
             self.logger.exception("An error occurred: %s", str(e))
-        print("hosts", hosts)
 
         emergency_rooms = ""
         failures = ""
@@ -133,6 +134,7 @@ class Alert:
                 else:
                     log = now + ",The following is Normal " + normal_rooms + "\n"
                 f.write(log)
+
         except Exception as e:
             self.logger.exception("An error occurred: %s", str(e))
 
