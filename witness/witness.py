@@ -10,7 +10,7 @@ class Witness:
 
     def __init__(self):
         # Teams Webhook
-        self.__WEBHOOK_URL = "https://x1studiocojp.webhook.office.com/webhookb2/2359c523-6ff7-4e43-9cce-b924c34b9a1b@3e594155-a0af-40ef-a8f2-dc8ce23f3844/IncomingWebhook/5798f01fbb53408ea38a9651139d18ea/4eb77287-1789-4810-b206-e1c3bd304107"
+        self.__WEBHOOK_URL = ""
         self.__warning = False
         self.__mention_developer = False
         self.__teams_text = ""
@@ -56,7 +56,7 @@ class Witness:
                     "body": [
                         {
                             "type": "TextBlock",
-                            "text": "<at>Masato Nagata</at>",
+                            "text": "<at></at>",
                             "wrap": True
                         },
                         {
@@ -83,10 +83,10 @@ class Witness:
                         "entities": [
                             {
                                 "type": "mention",
-                                "text": "<at>Masato Nagata</at>",
+                                "text": "<at></at>",
                                 "mentioned": {
-                                    "id": "nagata-m@x1studio.co.jp",
-                                    "name": "Masato Nagata"
+                                    "id": "",
+                                    "name": ""
                                 }
                             }
                         ]
@@ -104,7 +104,7 @@ class Witness:
                     "body": [
                         {
                             "type": "TextBlock",
-                            "text": "<at>Masato Nagata</at>",
+                            "text": "<at></at>",
                             "wrap": True
                         },
                         {
@@ -131,10 +131,10 @@ class Witness:
                         "entities": [
                             {
                                 "type": "mention",
-                                "text": "<at>Masato Nagata</at>",
+                                "text": "</at>",
                                 "mentioned": {
-                                    "id": "nagata-m@x1studio.co.jp",
-                                    "name": "Masato Nagata"
+                                    "id": "",
+                                    "name": ""
                                 }
                             }
                         ]
